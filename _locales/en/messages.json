@@ -1,0 +1,10 @@
+{
+  "extensionName": {
+    "message": "FontCraft",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "Customise fonts, sizes, spacing, and colors on any webpage for improved readability.",
+    "description": "Extension description"
+  }
+}

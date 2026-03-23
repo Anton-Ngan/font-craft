@@ -1,0 +1,66 @@
+/* shared/base.css */
+/* Foundation styles shared across popup and options pages. */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Shared design tokens */
+:root {
+  --border-focus: #2563eb;
+  --text: #111827;
+  --text-muted: #5e6878;   /* darkened from #6b7280 — passes WCAG AA 4.5:1 on all bg surfaces */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+
+  /* Panel accent colors — shared between popup and options */
+  --accent-typography: #d97706;   /* amber  */
+  --accent-spacing:    #059669;   /* emerald */
+  --accent-color-panel: #7c3aed; /* violet  */
+}
+
+/* Keyboard focus indicator */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Suppress elements with the hidden attribute regardless of display rules */
+[hidden] { display: none !important; }
+
+/* Shared empty-state message (used in both popup profiles and options lists) */
+.empty-msg {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 6px 0;
+}
+
+/* Dark mode token overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --border-focus: #60a5fa;
+    --text: #f4f3f0;
+    --text-muted: #9ca3af;   /* passes 6.3:1 on dark surfaces */
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --danger: #f87171;
+    --danger-hover: #ef4444;
+
+    /* Dark panel accents — brighter for dark surfaces */
+    --accent-typography: #f59e0b;
+    --accent-spacing:    #10b981;
+    --accent-color-panel: #8b5cf6;
+  }
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

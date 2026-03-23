@@ -1,0 +1,532 @@
+// options/options.js
+// Options page: custom font management, profiles, whitelist/blacklist
+
+(async () => {
+  const $ = id => document.getElementById(id);
+
+  let siteConfig = { siteMode: SITE_MODES.GLOBAL, siteList: [] };
+  let customFonts = [];
+  let profiles = [];
+  let currentSettings = null;
+
+  // ---------- toast ----------
+
+  function showToast(msg, duration = 2500) {
+    const toast = $('toast');
+    toast.textContent = msg;
+    toast.hidden = false;
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => { toast.hidden = true; }, duration);
+  }
+
+  // ---------- init ----------
+
+  async function init() {
+    [siteConfig, customFonts, profiles, currentSettings] = await Promise.all([
+      FontStorage.getSiteConfig(),
+      FontStorage.getCustomFontsMeta(),
+      FontStorage.getAllProfiles(),
+      FontStorage.getSettings(),
+    ]);
+
+    renderSiteMode();
+    renderSiteList();
+    renderCustomFonts();
+    renderProfiles();
+    bindEvents();
+  }
+
+  // ---------- custom fonts ----------
+
+  function renderCustomFonts() {
+    const list = $('custom-fonts-list');
+    const countBadge = $('custom-fonts-count');
+    list.innerHTML = '';
+
+    if (countBadge) {
+      if (customFonts.length > 0) {
+        countBadge.textContent = customFonts.length;
+        countBadge.hidden = false;
+      } else {
+        countBadge.hidden = true;
+      }
+    }
+
+    if (!customFonts.length) {
+      list.innerHTML = '<p class="empty-msg">No custom fonts added yet.</p>';
+      return;
+    }
+    customFonts.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.setAttribute('role', 'listitem');
+      const tagClass = f.source === 'google' ? 'list-item__tag--google' :
+                       f.source === 'upload' ? 'list-item__tag--upload' : 'list-item__tag--bundled';
+      const tagLabel = f.source === 'google' ? 'Google Fonts' :
+                       f.source === 'upload' ? 'Uploaded file' : 'Built-in font';
+      const tagTitle = f.source === 'google' ? 'Loaded from Google Fonts — requires an internet connection' :
+                       f.source === 'upload' ? 'Font file uploaded from your device — stored locally in this browser' :
+                       'Font bundled with this extension — always available offline';
+      const safeName = escapeHtml(f.name);
+      const safeId = escapeHtml(f.id);
+      item.innerHTML = `
+        <span class="list-item__name list-item__name--editable" data-id="${safeId}" title="Click to rename">${safeName}</span>
+        <span class="list-item__tag ${tagClass}" title="${tagTitle}">${tagLabel}</span>
+        <div class="list-item__actions">
+          <button class="btn-icon btn-delete-font" data-id="${safeId}" aria-label="Delete font ${safeName}" title="Delete">✕</button>
+        </div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function startFontRename(id, nameEl) {
+    const currentName = nameEl.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentName;
+    input.className = 'inline-rename-input';
+    input.setAttribute('aria-label', 'New font name');
+    nameEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    let committed = false;
+    async function commitRename() {
+      if (committed) return;
+      committed = true;
+      const newName = input.value.trim();
+      if (!newName || newName === currentName) { renderCustomFonts(); return; }
+      await FontStorage.renameCustomFont(id, newName);
+      const f = customFonts.find(cf => cf.id === id);
+      if (f) f.name = newName;
+      renderCustomFonts();
+      notifyAllTabs(MESSAGE_TYPES.INJECT_FONT_FACE);
+    }
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); commitRename(); }
+      if (e.key === 'Escape') { renderCustomFonts(); }
+    });
+    input.addEventListener('blur', commitRename);
+  }
+
+  async function handleFontFile(file) {
+    const status = $('upload-status');
+    if (!file) return;
+
+    const validExts = ['woff2', 'woff', 'ttf', 'otf'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!validExts.includes(ext)) {
+      status.textContent = `Invalid file type: .${ext}. Supported: .woff2, .woff, .ttf, .otf`;
+      status.className = 'upload-status upload-status--err';
+      return;
+    }
+
+    status.textContent = 'Reading font file…';
+    status.className = 'upload-status';
+
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      const fontName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      const formatMap = { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' };
+      const saved = await FontStorage.saveCustomFont(fontName, dataUrl, formatMap[ext] || ext);
+      customFonts.push(saved);
+      renderCustomFonts();
+      status.textContent = `✓ Font "${fontName}" added successfully.`;
+      status.className = 'upload-status upload-status--ok';
+
+      // Tell all tabs to refresh font faces
+      notifyAllTabs(MESSAGE_TYPES.INJECT_FONT_FACE);
+    } catch (err) {
+      status.textContent = `Error: ${err.message}`;
+      status.className = 'upload-status upload-status--err';
+    }
+  }
+
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleGoogleFont(input) {
+    const status = $('google-font-status');
+    const raw = input.trim();
+    if (!raw) return;
+
+    status.textContent = 'Checking font…';
+    status.className = 'upload-status';
+
+    let fontName = raw;
+    let url;
+
+    if (!raw.startsWith('http')) {
+      // Plain font name — build API URL directly
+      fontName = raw.replace(/\+/g, ' ').trim();
+      const encoded = fontName.replace(/ /g, '+');
+      url = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;700&display=swap`;
+    } else {
+      // URL pasted — support three Google Fonts URL formats:
+      // 1. Specimen page:  https://fonts.google.com/specimen/Open+Sans
+      // 2. Share link:     https://fonts.google.com/share?selection.family=Open+Sans:...
+      // 3. CSS embed URL:  https://fonts.googleapis.com/css2?family=Open+Sans:...
+      const specimenMatch = raw.match(/fonts\.google\.com\/specimen\/([^/?#]+)/);
+      const shareMatch    = raw.match(/[?&]selection\.family=([^&:]+)/);
+      const apiMatch      = raw.match(/[?&]family=([^&:]+)/);
+
+      const extracted = specimenMatch || shareMatch || apiMatch;
+      if (extracted) {
+        fontName = decodeURIComponent(extracted[1]).replace(/\+/g, ' ').trim();
+      }
+      // Always build a canonical API URL from the extracted name
+      const encoded = fontName.replace(/ /g, '+');
+      url = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;700&display=swap`;
+    }
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Google Fonts returned an error (${res.status})`);
+      const css = await res.text();
+      if (!css.includes('@font-face')) {
+        throw new Error(`"${fontName}" was not found on Google Fonts — check the spelling`);
+      }
+
+      const saved = await FontStorage.saveGoogleFont(fontName, url);
+      customFonts.push(saved);
+      renderCustomFonts();
+      $('google-font-input').value = '';
+      status.textContent = `✓ "${fontName}" added from Google Fonts.`;
+      status.className = 'upload-status upload-status--ok';
+      notifyAllTabs(MESSAGE_TYPES.INJECT_FONT_FACE);
+    } catch (err) {
+      status.textContent = `Error: ${err.message}`;
+      status.className = 'upload-status upload-status--err';
+    }
+  }
+
+  // ---------- profiles ----------
+
+  function renderProfiles() {
+    const list = $('profiles-list');
+    list.innerHTML = '';
+    if (!profiles.length) {
+      list.innerHTML = '<p class="empty-msg">No profiles saved yet.</p>';
+      return;
+    }
+    profiles.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.setAttribute('role', 'listitem');
+      const safeName = escapeHtml(p.name);
+      const safeId = escapeHtml(p.id);
+      const date = new Date(p.created).toLocaleDateString();
+      item.innerHTML = `
+        <span class="list-item__name list-item__name--editable" data-id="${safeId}" title="Click to rename">${safeName}</span>
+        <span class="list-item__tag">${date}</span>
+        <div class="list-item__actions">
+          <button class="btn btn--secondary btn--sm btn-load-profile" data-id="${safeId}" aria-label="Load profile ${safeName}">Load</button>
+          <button class="btn btn--secondary btn--sm btn-export-profile" data-id="${safeId}" aria-label="Export profile ${safeName}">Export</button>
+          <button class="btn-icon btn-delete-profile" data-id="${safeId}" aria-label="Delete profile ${safeName}" title="Delete">✕</button>
+        </div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function startProfileRename(id, nameEl) {
+    const currentName = nameEl.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentName;
+    input.className = 'inline-rename-input';
+    input.setAttribute('aria-label', 'New profile name');
+    nameEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    let committed = false;
+    async function commitRename() {
+      if (committed) return;
+      committed = true;
+      const newName = input.value.trim();
+      if (!newName || newName === currentName) { renderProfiles(); return; }
+      if (profiles.some(p => p.id !== id && p.name === newName)) {
+        committed = false;
+        input.setCustomValidity('A profile with this name already exists');
+        input.reportValidity();
+        return;
+      }
+      await FontStorage.renameProfile(id, newName);
+      const p = profiles.find(pr => pr.id === id);
+      if (p) p.name = newName;
+      renderProfiles();
+      showToast(`Profile renamed to "${newName}".`);
+    }
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); commitRename(); }
+      if (e.key === 'Escape') { renderProfiles(); }
+    });
+    input.addEventListener('blur', commitRename);
+  }
+
+  // ---------- site settings ----------
+
+  function renderSiteMode() {
+    const radios = document.querySelectorAll('input[name="site-mode"]');
+    radios.forEach(r => { r.checked = r.value === siteConfig.siteMode; });
+    updateSiteListVisibility();
+  }
+
+  function renderSiteList() {
+    const list = $('site-list');
+    list.innerHTML = '';
+    if (!siteConfig.siteList.length) {
+      list.innerHTML = '<p class="empty-msg">No sites in the list yet.</p>';
+      return;
+    }
+    siteConfig.siteList.forEach(site => {
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.setAttribute('role', 'listitem');
+      const safeSite = escapeHtml(site);
+      item.innerHTML = `
+        <span class="list-item__name">${safeSite}</span>
+        <div class="list-item__actions">
+          <button class="btn-icon btn-remove-site" data-site="${safeSite}" aria-label="Remove ${safeSite}">✕</button>
+        </div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function updateSiteListVisibility() {
+    const card = $('site-list-card');
+    const hint = $('site-list-hint');
+    const title = $('site-list-title');
+    const mode = siteConfig.siteMode;
+
+    if (mode === SITE_MODES.GLOBAL) {
+      card.hidden = true;
+    } else {
+      card.hidden = false;
+      if (mode === SITE_MODES.WHITELIST) {
+        title.textContent = 'Allowed sites';
+        hint.innerHTML = 'Extension is <strong>only active</strong> on these domains.';
+      } else {
+        title.textContent = 'Blocked sites';
+        hint.innerHTML = 'Extension is <strong>disabled</strong> on these domains.';
+      }
+    }
+  }
+
+  // ---------- notify tabs ----------
+
+  async function notifyAllTabs(msgType) {
+    try {
+      const tabs = await chrome.tabs.query({});
+      for (const tab of tabs) {
+        if (tab.id) {
+          chrome.tabs.sendMessage(tab.id, { type: msgType }).catch(() => {});
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
+  // ---------- bind events ----------
+
+  function bindEvents() {
+    // Font file upload
+    const uploadArea = $('upload-area');
+    const fileInput = $('font-file-input');
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+    uploadArea.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) handleFontFile(fileInput.files[0]);
+      fileInput.value = '';
+    });
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFontFile(file);
+    });
+
+    // Google font
+    $('btn-add-google-font').addEventListener('click', () => {
+      handleGoogleFont($('google-font-input').value);
+    });
+    $('google-font-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleGoogleFont($('google-font-input').value);
+    });
+
+    // Custom font list interactions (rename by clicking name, delete by button)
+    $('custom-fonts-list').addEventListener('click', async e => {
+      const deleteBtn = e.target.closest('.btn-delete-font');
+      const nameEl = e.target.closest('.list-item__name--editable');
+      if (deleteBtn) {
+        const id = deleteBtn.dataset.id;
+        await FontStorage.deleteCustomFont(id);
+        customFonts = customFonts.filter(f => f.id !== id);
+        renderCustomFonts();
+        showToast('Font removed.');
+      } else if (nameEl) {
+        startFontRename(nameEl.dataset.id, nameEl);
+      }
+    });
+
+    // Save profile
+    const profileNameEl = $('profile-name');
+    profileNameEl.addEventListener('input', () => profileNameEl.setCustomValidity(''));
+    $('btn-save-profile').addEventListener('click', async () => {
+      const name = profileNameEl.value.trim();
+      if (!name) { profileNameEl.focus(); return; }
+      if (profiles.some(p => p.name === name)) {
+        profileNameEl.setCustomValidity('A profile with this name already exists');
+        profileNameEl.reportValidity();
+        return;
+      }
+      profileNameEl.setCustomValidity('');
+      const settings = await FontStorage.getSettings();
+      const saved = await FontStorage.saveProfile(name, settings);
+      profiles.push(saved);
+      profileNameEl.value = '';
+      renderProfiles();
+      showToast(`Profile "${name}" saved.`);
+    });
+
+    // Profile actions (rename by clicking name, load/export/delete by buttons)
+    $('profiles-list').addEventListener('click', async e => {
+      const nameEl = e.target.closest('.list-item__name--editable');
+      const loadBtn = e.target.closest('.btn-load-profile');
+      const exportBtn = e.target.closest('.btn-export-profile');
+      const deleteBtn = e.target.closest('.btn-delete-profile');
+
+      if (nameEl) {
+        startProfileRename(nameEl.dataset.id, nameEl);
+        return;
+      }
+
+      if (loadBtn) {
+        const id = loadBtn.dataset.id;
+        const p = await FontStorage.getProfile(id);
+        if (p?.settings) {
+          const saved = await FontStorage.saveSettings(p.settings);
+          // Broadcast new settings to all open tabs
+          const tabs = await chrome.tabs.query({});
+          for (const tab of tabs) {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: MESSAGE_TYPES.APPLY_SETTINGS,
+                settings: saved,
+              }).catch(() => {});
+            }
+          }
+          showToast(`Profile "${p.name}" loaded.`);
+        }
+      }
+
+      if (exportBtn) {
+        const id = exportBtn.dataset.id;
+        const json = await FontStorage.exportProfile(id);
+        if (json) {
+          const blob = new Blob([json], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `fa-profile-${id}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      if (deleteBtn) {
+        const id = deleteBtn.dataset.id;
+        const p = profiles.find(pr => pr.id === id);
+        if (p && confirm(`Delete profile "${p.name}"?`)) {
+          await FontStorage.deleteProfile(id);
+          profiles = profiles.filter(pr => pr.id !== id);
+          renderProfiles();
+          showToast('Profile deleted.');
+        }
+      }
+    });
+
+    // Import profile
+    $('import-profile-input').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const saved = await FontStorage.importProfile(text);
+        profiles.push(saved);
+        renderProfiles();
+        showToast(`Profile "${saved.name}" imported.`);
+      } catch (err) {
+        showToast(`Import failed: ${err.message}`);
+      }
+      e.target.value = '';
+    });
+
+    // Site mode
+    document.querySelectorAll('input[name="site-mode"]').forEach(radio => {
+      radio.addEventListener('change', async () => {
+        siteConfig.siteMode = radio.value;
+        await FontStorage.saveSiteConfig(siteConfig.siteMode, siteConfig.siteList);
+        updateSiteListVisibility();
+      });
+    });
+
+    // Add site
+    $('btn-add-site').addEventListener('click', addSite);
+    $('site-input').addEventListener('keydown', e => { if (e.key === 'Enter') addSite(); });
+
+    async function addSite() {
+      const raw = $('site-input').value.trim().toLowerCase();
+      if (!raw) return;
+      // Strip protocol/path
+      const clean = raw.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      if (!clean || siteConfig.siteList.includes(clean)) {
+        $('site-input').value = '';
+        return;
+      }
+      siteConfig.siteList = [...siteConfig.siteList, clean];
+      await FontStorage.saveSiteConfig(siteConfig.siteMode, siteConfig.siteList);
+      $('site-input').value = '';
+      renderSiteList();
+    }
+
+    $('site-list').addEventListener('click', async e => {
+      const btn = e.target.closest('.btn-remove-site');
+      if (!btn) return;
+      const site = btn.dataset.site;
+      siteConfig.siteList = siteConfig.siteList.filter(s => s !== site);
+      await FontStorage.saveSiteConfig(siteConfig.siteMode, siteConfig.siteList);
+      renderSiteList();
+    });
+
+    // Reset everything
+    $('btn-reset-everything').addEventListener('click', async () => {
+      if (!confirm('This will reset ALL settings, profiles, and custom fonts. This cannot be undone. Continue?')) return;
+      await chrome.storage.sync.clear();
+      await chrome.storage.local.clear();
+      siteConfig = { siteMode: SITE_MODES.GLOBAL, siteList: [] };
+      customFonts = [];
+      profiles = [];
+      currentSettings = Object.assign({}, DEFAULT_SETTINGS);
+      renderSiteMode();
+      renderSiteList();
+      renderCustomFonts();
+      renderProfiles();
+      notifyAllTabs(MESSAGE_TYPES.APPLY_SETTINGS);
+      showToast('All settings reset.');
+    });
+  }
+
+  // ---------- start ----------
+  init().catch(console.error);
+})();

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Accessibility</title>
+  <link rel="stylesheet" href="../shared/base.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Status banner -->
+  <header class="header">
+    <div class="header-logo">
+      <img src="../assets/icons/icon-32.png" alt="" width="20" height="20">
+      <span class="header-title">Font Accessibility</span>
+    </div>
+    <div id="status-badge" class="status-badge status-badge--off" aria-live="polite">
+      <span id="status-text">Loading…</span>
+    </div>
+  </header>
+
+  <!-- Site toggle bar -->
+  <div class="site-bar" id="site-bar">
+    <span id="site-label" class="site-label">example.com</span>
+    <button id="btn-toggle-site" class="btn-site-toggle" aria-pressed="false">
+      Enable on this site
+    </button>
+  </div>
+
+  <!-- Tab navigation -->
+  <nav class="tabs" role="tablist" aria-label="Settings sections">
+    <button class="tab tab--active" role="tab" aria-selected="true" aria-controls="panel-typography" id="tab-typography" data-panel="typography">
+      Typography
+    </button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-spacing" id="tab-spacing" data-panel="spacing">
+      Spacing
+    </button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-color" id="tab-color" data-panel="color">
+      Color
+    </button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-profiles" id="tab-profiles" data-panel="profiles">
+      Profiles
+    </button>
+  </nav>
+
+  <!-- Typography panel -->
+  <section id="panel-typography" class="panel" role="tabpanel" aria-labelledby="tab-typography" tabindex="0">
+    <div class="field">
+      <label class="label" for="font-family">Font</label>
+      <div class="font-select-wrap">
+        <select id="font-family" class="select" aria-label="Choose font">
+          <option value="">— No change (use page font) —</option>
+          <optgroup label="Accessibility Fonts">
+            <!-- Populated by JS -->
+          </optgroup>
+          <optgroup label="System Fonts">
+            <!-- Populated by JS -->
+          </optgroup>
+          <optgroup label="Custom Fonts" id="optgroup-custom">
+            <!-- Populated by JS -->
+          </optgroup>
+        </select>
+        <button id="btn-preview-font" class="btn-small" aria-label="Preview selected font" title="Preview font">Aa</button>
+      </div>
+      <div id="font-preview" class="font-preview" aria-live="polite" aria-label="Font preview text"></div>
+    </div>
+
+
+  </section>
+
+  <!-- Spacing panel -->
+  <section id="panel-spacing" class="panel" role="tabpanel" aria-labelledby="tab-spacing" tabindex="0" hidden>
+    <div class="field">
+      <label class="label" for="line-height">
+        Line height
+        <span class="label-controls">
+          <span class="value-label" id="line-height-label" aria-live="polite">normal</span>
+          <button class="btn-reset-slider" id="btn-reset-line-height" type="button" hidden>Reset</button>
+        </span>
+      </label>
+      <div class="slider-with-btns">
+        <button class="btn-slider-step" id="btn-lh-dec" aria-label="Decrease line height" type="button">−</button>
+        <input type="range" id="line-height" class="slider"
+          min="1" max="3" step="0.1" value="1.2"
+          aria-valuemin="1" aria-valuemax="3" aria-valuetext="normal">
+        <button class="btn-slider-step" id="btn-lh-inc" aria-label="Increase line height" type="button">+</button>
+      </div>
+      <div class="range-hints"><span>1.0×</span><span>3.0×</span></div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="letter-spacing">
+        Letter spacing
+        <span class="label-controls">
+          <span class="value-label" id="letter-spacing-label" aria-live="polite">normal</span>
+          <button class="btn-reset-slider" id="btn-reset-letter-spacing" type="button" hidden>Reset</button>
+        </span>
+      </label>
+      <div class="slider-with-btns">
+        <button class="btn-slider-step" id="btn-ls-dec" aria-label="Decrease letter spacing" type="button">−</button>
+        <input type="range" id="letter-spacing" class="slider"
+          min="-0.05" max="0.3" step="0.005" value="0"
+          aria-valuemin="-0.05" aria-valuemax="0.3" aria-valuetext="normal">
+        <button class="btn-slider-step" id="btn-ls-inc" aria-label="Increase letter spacing" type="button">+</button>
+      </div>
+      <div class="range-hints"><span>tight</span><span>wide</span></div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="word-spacing">
+        Word spacing
+        <span class="label-controls">
+          <span class="value-label" id="word-spacing-label" aria-live="polite">normal</span>
+          <button class="btn-reset-slider" id="btn-reset-word-spacing" type="button" hidden>Reset</button>
+        </span>
+      </label>
+      <div class="slider-with-btns">
+        <button class="btn-slider-step" id="btn-ws-dec" aria-label="Decrease word spacing" type="button">−</button>
+        <input type="range" id="word-spacing" class="slider"
+          min="-0.05" max="0.5" step="0.01" value="0"
+          aria-valuemin="-0.05" aria-valuemax="0.5" aria-valuetext="normal">
+        <button class="btn-slider-step" id="btn-ws-inc" aria-label="Increase word spacing" type="button">+</button>
+      </div>
+      <div class="range-hints"><span>tight</span><span>wide</span></div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="paragraph-spacing">
+        Paragraph spacing
+        <span class="label-controls">
+          <span class="value-label" id="paragraph-spacing-label" aria-live="polite">normal</span>
+          <button class="btn-reset-slider" id="btn-reset-paragraph-spacing" type="button" hidden>Reset</button>
+        </span>
+      </label>
+      <div class="slider-with-btns">
+        <button class="btn-slider-step" id="btn-ps-dec" aria-label="Decrease paragraph spacing" type="button">−</button>
+        <input type="range" id="paragraph-spacing" class="slider"
+          min="0" max="3" step="0.1" value="0"
+          aria-valuemin="0" aria-valuemax="3" aria-valuetext="normal">
+        <button class="btn-slider-step" id="btn-ps-inc" aria-label="Increase paragraph spacing" type="button">+</button>
+      </div>
+      <div class="range-hints"><span>normal</span><span>3× larger</span></div>
+    </div>
+  </section>
+
+  <!-- Color panel -->
+  <section id="panel-color" class="panel" role="tabpanel" aria-labelledby="tab-color" tabindex="0" hidden>
+    <div class="field">
+      <label class="label" for="text-color">Text color</label>
+      <div class="color-row">
+        <input type="color" id="text-color" class="color-input" value="#000000" aria-label="Text color">
+        <span class="color-hex color-hex--unset" id="text-color-hex" aria-hidden="true">not set</span>
+        <button id="btn-reset-text-color" class="btn-small" aria-label="Reset text color">Reset</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="highlight-color">Selection highlight color</label>
+      <div class="color-row">
+        <input type="color" id="highlight-color" class="color-input" value="#ffff00" aria-label="Highlight color">
+        <span class="color-hex color-hex--unset" id="highlight-color-hex" aria-hidden="true">not set</span>
+        <button id="btn-reset-highlight" class="btn-small" aria-label="Reset highlight color">Reset</button>
+      </div>
+    </div>
+
+    <div class="field" id="field-highlight-text" hidden>
+      <label class="label" for="highlight-text-color">Highlighted text color</label>
+      <div class="color-row">
+        <input type="color" id="highlight-text-color" class="color-input" value="#000000" aria-label="Highlighted text color">
+        <span class="color-hex color-hex--unset" id="highlight-text-color-hex" aria-hidden="true">not set</span>
+        <button id="btn-reset-highlight-text" class="btn-small" aria-label="Reset highlighted text color">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profiles panel -->
+  <section id="panel-profiles" class="panel" role="tabpanel" aria-labelledby="tab-profiles" tabindex="0" hidden>
+    <div class="field">
+      <div class="profile-save-row">
+        <input type="text" id="profile-name" class="input" placeholder="Profile name" aria-label="New profile name" maxlength="40">
+        <button id="btn-save-profile" class="btn btn--primary btn--sm">Save profile</button>
+      </div>
+    </div>
+
+    <div id="profiles-list" class="profiles-list" aria-label="Saved profiles" role="list">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="field field--separator">
+      <button id="btn-reset-all" class="btn btn--danger btn--sm">Reset all settings</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <button id="btn-options" class="btn-link" aria-label="Open full options page">
+      Manage fonts &amp; site rules
+    </button>
+  </footer>
+
+  <script src="../shared/constants.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/font-list.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
