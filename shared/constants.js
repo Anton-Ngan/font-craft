@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
   paragraphSpacing: '',    // '' = normal
   highlightColor: '',      // '' = browser default
   highlightTextColor: '',  // '' = browser default
+  colorScheme: 'light',    // 'light' | 'dark' — extension UI theme
 };
 
 const SITE_MODES = {

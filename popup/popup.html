@@ -14,8 +14,11 @@
       <img src="../assets/icons/icon-32.png" alt="" width="20" height="20">
       <span class="header-title">Font Accessibility</span>
     </div>
-    <div id="status-badge" class="status-badge status-badge--off" aria-live="polite">
-      <span id="status-text">Loading…</span>
+    <div class="header-actions">
+      <button id="btn-theme-toggle" class="btn-theme-toggle" type="button" aria-label="Switch to dark mode"></button>
+      <div id="status-badge" class="status-badge status-badge--off" aria-live="polite">
+        <span id="status-text">Loading…</span>
+      </div>
     </div>
   </header>
 
@@ -196,6 +199,13 @@
     <button id="btn-options" class="btn-link" aria-label="Open full options page">
       Manage fonts &amp; site rules
     </button>
+    <div class="info-wrap">
+      <button class="btn-info" type="button" aria-label="Extension limitations">ⓘ</button>
+      <div class="info-tooltip" role="tooltip">
+        <strong>Extension limitations</strong><br>
+        Extensions cannot run on special pages such as the Chrome Web Store or browser internal pages (chrome://…). The extension may also not function on sites with strict script-blocking policies.
+      </div>
+    </div>
   </footer>
 
   <script src="../shared/constants.js"></script>

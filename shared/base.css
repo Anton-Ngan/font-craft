@@ -40,8 +40,9 @@
 }
 
 /* Dark mode token overrides */
+/* Auto: follows system preference unless user has forced light */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --border-focus: #60a5fa;
     --text: #f4f3f0;
     --text-muted: #9ca3af;   /* passes 6.3:1 on dark surfaces */
@@ -55,6 +56,19 @@
     --accent-spacing:    #10b981;
     --accent-color-panel: #8b5cf6;
   }
+}
+/* Forced dark: always dark regardless of system */
+html[data-theme="dark"] {
+  --border-focus: #60a5fa;
+  --text: #f4f3f0;
+  --text-muted: #9ca3af;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --danger: #f87171;
+  --danger-hover: #ef4444;
+  --accent-typography: #f59e0b;
+  --accent-spacing:    #10b981;
+  --accent-color-panel: #8b5cf6;
 }
 
 /* Respect reduced-motion preference */

@@ -21,7 +21,7 @@ body {
   font-size: 13px;
   color: var(--text);
   background: var(--bg);
-  width: 320px;
+  width: 340px;
   min-height: 100px;
   overflow-x: hidden;
 }
@@ -36,6 +36,29 @@ body {
 }
 .header-logo { display: flex; align-items: center; gap: 7px; }
 .header-title { font-weight: 600; font-size: 13px; }
+.header-actions { display: flex; align-items: center; gap: 6px; }
+
+/* Theme toggle — small ghost icon button */
+.btn-theme-toggle {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+}
+.btn-theme-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border);
+}
 
 /* ---------- Status badge — animated dot indicator ---------- */
 .status-badge {
@@ -434,9 +457,11 @@ body {
 
 /* ---------- Footer ---------- */
 .footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 7px 12px;
   border-top: 1px solid var(--border);
-  text-align: center;
 }
 .btn-link {
   background: none;
@@ -449,6 +474,53 @@ body {
 }
 .btn-link:hover { color: var(--primary); }
 
+/* Info icon + tooltip */
+.info-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.btn-info {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 3px;
+  transition: color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-info:hover,
+.btn-info:focus-visible {
+  color: var(--primary);
+  outline: none;
+}
+.info-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  width: 240px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text);
+  z-index: 100;
+  pointer-events: none;
+}
+.btn-info:hover + .info-tooltip,
+.btn-info:focus-visible + .info-tooltip {
+  display: block;
+}
+
 /* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -456,8 +528,9 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ---------- Dark mode ---------- */
+/* Auto: follows system, suppressed if user forced light */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #1a1917;
     --bg-subtle: #222120;
     --bg-hover: #2c2a28;
@@ -471,22 +544,38 @@ body {
     --shadow-sm: 0 1px 3px rgba(0,0,0,.5);
   }
 
-  .tab--active {
+  :root:not([data-theme="light"]) .tab--active {
     background: var(--bg-hover);
     box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06);
   }
-  .tab:hover { background: rgba(255,255,255,.05); }
+  :root:not([data-theme="light"]) .tab:hover { background: rgba(255,255,255,.05); }
 
   /* Per-tab dark accent text */
-  .tab[data-panel="typography"].tab--active { color: #fcd34d; }
-  .tab[data-panel="spacing"].tab--active    { color: #6ee7b7; }
-  .tab[data-panel="color"].tab--active      { color: #c4b5fd; }
-  .tab[data-panel="profiles"].tab--active   { color: #93c5fd; }
-
-  /* Panel top borders — inherit dark accent tokens from base.css */
-  /* (--accent-typography, --accent-spacing, --accent-color-panel auto-update in dark) */
-
-  /* Spacing slider fill dark variant — auto via var(--accent-spacing) from base.css */
-
-  /* Font preview border — auto via var(--accent-typography) from base.css */
+  :root:not([data-theme="light"]) .tab[data-panel="typography"].tab--active { color: #fcd34d; }
+  :root:not([data-theme="light"]) .tab[data-panel="spacing"].tab--active    { color: #6ee7b7; }
+  :root:not([data-theme="light"]) .tab[data-panel="color"].tab--active      { color: #c4b5fd; }
+  :root:not([data-theme="light"]) .tab[data-panel="profiles"].tab--active   { color: #93c5fd; }
 }
+
+/* Forced dark: always dark regardless of system */
+html[data-theme="dark"] {
+  --bg: #1a1917;
+  --bg-subtle: #222120;
+  --bg-hover: #2c2a28;
+  --bg-card: #2c2a28;
+  --border: #3a3836;
+  --success: #4ade80;
+  --status-on-bg: #14532d;
+  --status-on-text: #86efac;
+  --status-off-bg: #222120;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.5);
+}
+html[data-theme="dark"] .tab--active {
+  background: var(--bg-hover);
+  box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06);
+}
+html[data-theme="dark"] .tab:hover { background: rgba(255,255,255,.05); }
+html[data-theme="dark"] .tab[data-panel="typography"].tab--active { color: #fcd34d; }
+html[data-theme="dark"] .tab[data-panel="spacing"].tab--active    { color: #6ee7b7; }
+html[data-theme="dark"] .tab[data-panel="color"].tab--active      { color: #c4b5fd; }
+html[data-theme="dark"] .tab[data-panel="profiles"].tab--active   { color: #93c5fd; }

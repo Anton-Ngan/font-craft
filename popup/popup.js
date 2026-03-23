@@ -1,5 +1,6 @@
 // popup/popup.js
 // Two-way binding between popup controls ↔ chrome.storage ↔ content script
+// @ts-nocheck — globals (SITE_MODES, FontStorage, etc.) are loaded via <script> tags in popup.html
 
 (async () => {
   // ---------- state ----------
@@ -55,6 +56,7 @@
   const profilesList = $('profiles-list');
   const btnResetAll = $('btn-reset-all');
   const btnOptions = $('btn-options');
+  const btnThemeToggle = $('btn-theme-toggle');
 
   // ---------- slider & color helpers ----------
 
@@ -86,6 +88,51 @@
     }
   }
 
+  // ---------- font face injection (for preview + meta-apply) ----------
+
+  async function injectExtensionFontFaces() {
+    const parts = BUNDLED_FONT_FACES.map(f =>
+      `@font-face { font-family: "${f.name}"; src: url("${chrome.runtime.getURL(f.file)}") format("${f.format}"); font-weight: ${f.weight}; font-style: ${f.style}; font-display: swap; }`
+    );
+    for (const f of customFonts) {
+      if (f.source === 'upload') {
+        const dataUrl = await FontStorage.getCustomFontData(f.id);
+        if (dataUrl) {
+          parts.push(`@font-face { font-family: "${f.name}"; src: url("${dataUrl}") format("${f.format}"); font-display: swap; }`);
+        }
+      } else if (f.source === 'google' && f.url) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = f.url;
+        document.head.appendChild(link);
+      }
+    }
+    if (parts.length) {
+      const style = document.createElement('style');
+      style.textContent = parts.join('\n');
+      document.head.appendChild(style);
+    }
+  }
+
+  // ---------- theme ----------
+
+  function applyTheme(scheme) {
+    // 'auto' is a legacy value — treat as light
+    const resolved = scheme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', resolved);
+    updateThemeButton(resolved);
+  }
+
+  function updateThemeButton(scheme) {
+    const resolved = scheme === 'dark' ? 'dark' : 'light';
+    const icons = {
+      light: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
+      dark:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    };
+    btnThemeToggle.innerHTML = icons[resolved];
+    btnThemeToggle.setAttribute('aria-label', resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
   // ---------- init ----------
 
   async function init() {
@@ -104,6 +151,8 @@
       FontStorage.getCustomFontsMeta(),
     ]);
 
+    await injectExtensionFontFaces();
+    applyTheme(settings.colorScheme || 'light');
     populateFontSelect();
     renderControls();
     renderSiteState();
@@ -501,6 +550,14 @@
           settings,
         }).catch(() => {});
       }
+    });
+
+    // Theme toggle — toggles light ↔ dark
+    btnThemeToggle.addEventListener('click', () => {
+      const current = settings.colorScheme === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      pushSettings({ colorScheme: next });
     });
 
     // Options page

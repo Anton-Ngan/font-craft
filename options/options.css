@@ -40,6 +40,29 @@ body {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
 }
+.page-header__text { flex: 1; }
+
+/* Theme toggle — same ghost button as popup, slightly larger */
+.btn-theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s, border-color 0.1s;
+}
+.btn-theme-toggle:hover {
+  background: var(--bg-card);
+  color: var(--text);
+  border-color: var(--border);
+}
 .page-title { font-size: 22px; font-weight: 700; }
 .page-subtitle { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
 
@@ -365,8 +388,9 @@ body {
 }
 
 /* ---------- Dark mode ---------- */
+/* Auto: follows system, suppressed if user forced light */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #1a1917;
     --bg-card: #222120;
     --border: #3a3836;
@@ -375,32 +399,42 @@ body {
     --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
   }
 
-  /* Section dots — dark variants auto-apply via --accent-* tokens from base.css dark mode */
-
-  /* Font/profile tags */
-  .list-item__tag          { background: #172554; color: #93c5fd; }
-  .list-item__tag--google  { background: #14532d; color: #86efac; }
-  .list-item__tag--upload  { background: #1c1508; color: #fcd34d; }
-  .list-item__tag--bundled { background: #1c1231; color: #c4b5fd; }
-
-  /* Upload area hover tint */
-  .upload-area:hover,
-  .upload-area.drag-over { background: #172554; color: var(--text); }
-
-  /* Success status */
-  .upload-status--ok { color: #4ade80; }
-
-  /* Inputs on dark */
-  .input { background: var(--bg); }
-
-  /* Button secondary dark */
-  .btn--secondary { background: var(--bg); }
-  .btn--secondary:hover { background: var(--bg-card); }
-
-  /* Icon buttons */
-  .btn-icon:hover { background: var(--bg-card); }
-  .inline-rename-input { background: var(--bg); }
-
-  .list-item:hover { background: var(--bg-card); }
-  .list-item__name--editable:hover { background: #2c2a28; }
+  :root:not([data-theme="light"]) .list-item__tag          { background: #172554; color: #93c5fd; }
+  :root:not([data-theme="light"]) .list-item__tag--google  { background: #14532d; color: #86efac; }
+  :root:not([data-theme="light"]) .list-item__tag--upload  { background: #1c1508; color: #fcd34d; }
+  :root:not([data-theme="light"]) .list-item__tag--bundled { background: #1c1231; color: #c4b5fd; }
+  :root:not([data-theme="light"]) .upload-area:hover,
+  :root:not([data-theme="light"]) .upload-area.drag-over   { background: #172554; color: var(--text); }
+  :root:not([data-theme="light"]) .upload-status--ok       { color: #4ade80; }
+  :root:not([data-theme="light"]) .input                   { background: var(--bg); }
+  :root:not([data-theme="light"]) .btn--secondary          { background: var(--bg); }
+  :root:not([data-theme="light"]) .btn--secondary:hover    { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .btn-icon:hover          { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .inline-rename-input     { background: var(--bg); }
+  :root:not([data-theme="light"]) .list-item:hover         { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .list-item__name--editable:hover { background: #2c2a28; }
 }
+
+/* Forced dark: always dark regardless of system */
+html[data-theme="dark"] {
+  --bg: #1a1917;
+  --bg-card: #222120;
+  --border: #3a3836;
+  --danger-bg: #2c1010;
+  --danger-border: #7f1d1d;
+  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+}
+html[data-theme="dark"] .list-item__tag          { background: #172554; color: #93c5fd; }
+html[data-theme="dark"] .list-item__tag--google  { background: #14532d; color: #86efac; }
+html[data-theme="dark"] .list-item__tag--upload  { background: #1c1508; color: #fcd34d; }
+html[data-theme="dark"] .list-item__tag--bundled { background: #1c1231; color: #c4b5fd; }
+html[data-theme="dark"] .upload-area:hover,
+html[data-theme="dark"] .upload-area.drag-over   { background: #172554; color: var(--text); }
+html[data-theme="dark"] .upload-status--ok       { color: #4ade80; }
+html[data-theme="dark"] .input                   { background: var(--bg); }
+html[data-theme="dark"] .btn--secondary          { background: var(--bg); }
+html[data-theme="dark"] .btn--secondary:hover    { background: var(--bg-card); }
+html[data-theme="dark"] .btn-icon:hover          { background: var(--bg-card); }
+html[data-theme="dark"] .inline-rename-input     { background: var(--bg); }
+html[data-theme="dark"] .list-item:hover         { background: var(--bg-card); }
+html[data-theme="dark"] .list-item__name--editable:hover { background: #2c2a28; }
