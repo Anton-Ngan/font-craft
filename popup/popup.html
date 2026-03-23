@@ -16,9 +16,9 @@
     </div>
     <div class="header-actions">
       <button id="btn-theme-toggle" class="btn-theme-toggle" type="button" aria-label="Switch to dark mode"></button>
-      <div id="status-badge" class="status-badge status-badge--off" aria-live="polite">
+      <button id="status-badge" class="status-badge status-badge--off" type="button" aria-live="polite" aria-label="Extension off. Click to enable.">
         <span id="status-text">Loading…</span>
-      </div>
+      </button>
     </div>
   </header>
 
@@ -32,10 +32,10 @@
 
   <!-- Tab navigation -->
   <nav class="tabs" role="tablist" aria-label="Settings sections">
-    <button class="tab tab--active" role="tab" aria-selected="true" aria-controls="panel-typography" id="tab-typography" data-panel="typography">
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-typography" id="tab-typography" data-panel="typography">
       Typography
     </button>
-    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-spacing" id="tab-spacing" data-panel="spacing">
+    <button class="tab tab--active" role="tab" aria-selected="true" aria-controls="panel-spacing" id="tab-spacing" data-panel="spacing">
       Spacing
     </button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="panel-color" id="tab-color" data-panel="color">
@@ -47,12 +47,12 @@
   </nav>
 
   <!-- Typography panel -->
-  <section id="panel-typography" class="panel" role="tabpanel" aria-labelledby="tab-typography" tabindex="0">
+  <section id="panel-typography" class="panel" role="tabpanel" aria-labelledby="tab-typography" tabindex="0" hidden>
     <div class="field">
       <label class="label" for="font-family">Font</label>
       <div class="font-select-wrap">
         <select id="font-family" class="select" aria-label="Choose font">
-          <option value="">— No change (use page font) —</option>
+          <option value="">Keep page font</option>
           <optgroup label="Accessibility Fonts">
             <!-- Populated by JS -->
           </optgroup>
@@ -72,7 +72,7 @@
   </section>
 
   <!-- Spacing panel -->
-  <section id="panel-spacing" class="panel" role="tabpanel" aria-labelledby="tab-spacing" tabindex="0" hidden>
+  <section id="panel-spacing" class="panel" role="tabpanel" aria-labelledby="tab-spacing" tabindex="0">
     <div class="field">
       <label class="label" for="line-height">
         Line height
@@ -202,8 +202,8 @@
     <div class="info-wrap">
       <button class="btn-info" type="button" aria-label="Extension limitations">ⓘ</button>
       <div class="info-tooltip" role="tooltip">
-        <strong>Extension limitations</strong><br>
-        Extensions cannot run on special pages such as the Chrome Web Store or browser internal pages (chrome://…). The extension may also not function on sites with strict script-blocking policies.
+        <strong>Where this won't work</strong><br>
+        This extension can't run on Chrome's built-in pages (like the Web Store or chrome://settings). It may also not work on sites that actively block browser extensions.
       </div>
     </div>
   </footer>

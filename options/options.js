@@ -19,7 +19,7 @@
     toast._timer = setTimeout(() => { toast.hidden = true; }, duration);
   }
 
-  // ---------- font face injection (for meta-apply) ----------
+  // ---------- font face injection (for font preview) ----------
 
   async function injectExtensionFontFaces() {
     const parts = BUNDLED_FONT_FACES.map(f =>
@@ -119,7 +119,7 @@
       const safeName = escapeHtml(f.name);
       const safeId = escapeHtml(f.id);
       item.innerHTML = `
-        <span class="list-item__name list-item__name--editable" data-id="${safeId}" title="Click to rename">${safeName}</span>
+        <span class="list-item__name list-item__name--editable" role="button" tabindex="0" data-id="${safeId}" title="Click or press Enter to rename">${safeName}</span>
         <span class="list-item__tag ${tagClass}" title="${tagTitle}">${tagLabel}</span>
         <div class="list-item__actions">
           <button class="btn-icon btn-delete-font" data-id="${safeId}" aria-label="Delete font ${safeName}" title="Delete">✕</button>
@@ -135,6 +135,7 @@
     input.value = currentName;
     input.className = 'inline-rename-input';
     input.setAttribute('aria-label', 'New font name');
+    input.maxLength = 40;
     nameEl.replaceWith(input);
     input.focus();
     input.select();
@@ -171,12 +172,20 @@
       return;
     }
 
+    const MAX_FONT_BYTES = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_FONT_BYTES) {
+      status.textContent = `File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum size is 5 MB.`;
+      status.className = 'upload-status upload-status--err';
+      return;
+    }
+
     status.textContent = 'Reading font file…';
     status.className = 'upload-status';
 
     try {
       const dataUrl = await readFileAsDataURL(file);
-      const fontName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      const rawName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').trim();
+      const fontName = rawName || 'Custom Font';
       const formatMap = { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' };
       const saved = await FontStorage.saveCustomFont(fontName, dataUrl, formatMap[ext] || ext);
       customFonts.push(saved);
@@ -187,7 +196,10 @@
       // Tell all tabs to refresh font faces
       notifyAllTabs(MESSAGE_TYPES.INJECT_FONT_FACE);
     } catch (err) {
-      status.textContent = `Error: ${err.message}`;
+      const isQuota = err.message && err.message.toLowerCase().includes('quota');
+      status.textContent = isQuota
+        ? 'Couldn\'t save — the font may be too large for browser storage. Try a smaller file.'
+        : `Couldn\'t add font: ${err.message}`;
       status.className = 'upload-status upload-status--err';
     }
   }
@@ -235,6 +247,8 @@
       url = `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;700&display=swap`;
     }
 
+    const addBtn = $('btn-add-google-font');
+    addBtn.disabled = true;
     try {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Google Fonts returned an error (${res.status})`);
@@ -251,8 +265,13 @@
       status.className = 'upload-status upload-status--ok';
       notifyAllTabs(MESSAGE_TYPES.INJECT_FONT_FACE);
     } catch (err) {
-      status.textContent = `Error: ${err.message}`;
+      const msg = (err instanceof TypeError && err.message.toLowerCase().includes('fetch'))
+        ? 'Could not reach Google Fonts — check your internet connection and try again.'
+        : err.message;
+      status.textContent = msg;
       status.className = 'upload-status upload-status--err';
+    } finally {
+      addBtn.disabled = false;
     }
   }
 
@@ -271,9 +290,10 @@
       item.setAttribute('role', 'listitem');
       const safeName = escapeHtml(p.name);
       const safeId = escapeHtml(p.id);
-      const date = new Date(p.created).toLocaleDateString();
+      const dateVal = p.created ? new Date(p.created) : null;
+      const date = (dateVal && !isNaN(dateVal)) ? dateVal.toLocaleDateString() : '—';
       item.innerHTML = `
-        <span class="list-item__name list-item__name--editable" data-id="${safeId}" title="Click to rename">${safeName}</span>
+        <span class="list-item__name list-item__name--editable" role="button" tabindex="0" data-id="${safeId}" title="Click or press Enter to rename">${safeName}</span>
         <span class="list-item__tag">${date}</span>
         <div class="list-item__actions">
           <button class="btn btn--secondary btn--sm btn-load-profile" data-id="${safeId}" aria-label="Load profile ${safeName}">Load</button>
@@ -291,6 +311,7 @@
     input.value = currentName;
     input.className = 'inline-rename-input';
     input.setAttribute('aria-label', 'New profile name');
+    input.maxLength = 40;
     nameEl.replaceWith(input);
     input.focus();
     input.select();
@@ -413,6 +434,13 @@
       if (e.key === 'Enter') handleGoogleFont($('google-font-input').value);
     });
 
+    // Custom font list — keyboard rename (Enter on editable span)
+    $('custom-fonts-list').addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const nameEl = e.target.closest('.list-item__name--editable');
+      if (nameEl) { e.preventDefault(); startFontRename(nameEl.dataset.id, nameEl); }
+    });
+
     // Custom font list interactions (rename by clicking name, delete by button)
     $('custom-fonts-list').addEventListener('click', async e => {
       const deleteBtn = e.target.closest('.btn-delete-font');
@@ -422,7 +450,7 @@
         await FontStorage.deleteCustomFont(id);
         customFonts = customFonts.filter(f => f.id !== id);
         renderCustomFonts();
-        showToast('Font removed.');
+        showToast('Font deleted.');
       } else if (nameEl) {
         startFontRename(nameEl.dataset.id, nameEl);
       }
@@ -431,7 +459,8 @@
     // Save profile
     const profileNameEl = $('profile-name');
     profileNameEl.addEventListener('input', () => profileNameEl.setCustomValidity(''));
-    $('btn-save-profile').addEventListener('click', async () => {
+    const saveProfileBtn = $('btn-save-profile');
+    saveProfileBtn.addEventListener('click', async () => {
       const name = profileNameEl.value.trim();
       if (!name) { profileNameEl.focus(); return; }
       if (profiles.some(p => p.name === name)) {
@@ -440,12 +469,24 @@
         return;
       }
       profileNameEl.setCustomValidity('');
-      const settings = await FontStorage.getSettings();
-      const saved = await FontStorage.saveProfile(name, settings);
-      profiles.push(saved);
-      profileNameEl.value = '';
-      renderProfiles();
-      showToast(`Profile "${name}" saved.`);
+      saveProfileBtn.disabled = true;
+      try {
+        const settings = await FontStorage.getSettings();
+        const saved = await FontStorage.saveProfile(name, settings);
+        profiles.push(saved);
+        profileNameEl.value = '';
+        renderProfiles();
+        showToast(`Profile "${name}" saved.`);
+      } finally {
+        saveProfileBtn.disabled = false;
+      }
+    });
+
+    // Profiles list — keyboard rename (Enter on editable span)
+    $('profiles-list').addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const nameEl = e.target.closest('.list-item__name--editable');
+      if (nameEl) { e.preventDefault(); startProfileRename(nameEl.dataset.id, nameEl); }
     });
 
     // Profile actions (rename by clicking name, load/export/delete by buttons)
@@ -516,7 +557,7 @@
         renderProfiles();
         showToast(`Profile "${saved.name}" imported.`);
       } catch (err) {
-        showToast(`Import failed: ${err.message}`);
+        showToast('Couldn\'t import profile — the file may be invalid or corrupted.');
       }
       e.target.value = '';
     });
@@ -538,11 +579,19 @@
       const raw = $('site-input').value.trim().toLowerCase();
       if (!raw) return;
       // Strip protocol/path
-      const clean = raw.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      const clean = raw.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\s/g, '');
       if (!clean || siteConfig.siteList.includes(clean)) {
         $('site-input').value = '';
         return;
       }
+      // Reject strings that don't look like domains
+      if (clean.length > 253 || !/^[a-z0-9]/.test(clean)) {
+        const siteInput = $('site-input');
+        siteInput.setCustomValidity('Enter a valid domain name, e.g. example.com');
+        siteInput.reportValidity();
+        return;
+      }
+      $('site-input').setCustomValidity('');
       siteConfig.siteList = [...siteConfig.siteList, clean];
       await FontStorage.saveSiteConfig(siteConfig.siteMode, siteConfig.siteList);
       $('site-input').value = '';
@@ -572,7 +621,7 @@
 
     // Reset everything
     $('btn-reset-everything').addEventListener('click', async () => {
-      if (!confirm('This will reset ALL settings, profiles, and custom fonts. This cannot be undone. Continue?')) return;
+      if (!confirm('Delete all settings, profiles, and custom fonts? This can\'t be undone.')) return;
       await chrome.storage.sync.clear();
       await chrome.storage.local.clear();
       siteConfig = { siteMode: SITE_MODES.GLOBAL, siteList: [] };

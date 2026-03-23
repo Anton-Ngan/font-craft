@@ -88,7 +88,7 @@
     }
   }
 
-  // ---------- font face injection (for preview + meta-apply) ----------
+  // ---------- font face injection (for preview) ----------
 
   async function injectExtensionFontFaces() {
     const parts = BUNDLED_FONT_FACES.map(f =>
@@ -235,6 +235,8 @@
 
     if (settings.highlightTextColor) highlightTextColorInput.value = settings.highlightTextColor;
     setColorHex(highlightTextColorHex, settings.highlightTextColor);
+
+    if (settings.fontFamily) updateFontPreview();
   }
 
   // ---------- site state ----------
@@ -254,6 +256,7 @@
     const active = isActiveOnSite() && settings.enabled;
     statusBadge.className = `status-badge ${active ? 'status-badge--on' : 'status-badge--off'}`;
     statusText.textContent = active ? 'ON' : 'OFF';
+    statusBadge.setAttribute('aria-label', active ? 'Extension is on. Click to turn off.' : 'Extension is off. Click to turn on.');
 
     if (isActiveOnSite()) {
       btnToggleSite.textContent = 'Disable on this site';
@@ -299,6 +302,7 @@
     input.value = currentName;
     input.className = 'profile-rename-input';
     input.setAttribute('aria-label', 'New profile name');
+    input.maxLength = 40;
     nameSpan.replaceWith(input);
     input.focus();
     input.select();
@@ -328,6 +332,19 @@
     input.addEventListener('blur', commitRename);
   }
 
+  // ---------- font preview ----------
+
+  function updateFontPreview() {
+    const font = fontFamilySelect.value;
+    if (font) {
+      fontPreview.style.fontFamily = font;
+      fontPreview.textContent = `The quick brown fox — ${font}`;
+      fontPreview.classList.add('visible');
+    } else {
+      fontPreview.classList.remove('visible');
+    }
+  }
+
   // ---------- send settings to content script ----------
 
   async function pushSettings(newSettings) {
@@ -349,18 +366,19 @@
       tab.addEventListener('click', () => switchTab(tab.dataset.panel));
     });
 
-    // Font family
+    // Font family — auto-show preview on change
     fontFamilySelect.addEventListener('change', () => {
       pushSettings({ fontFamily: fontFamilySelect.value });
+      updateFontPreview();
     });
 
-    // Font preview
+    // Aa button — toggle preview visibility
     btnPreviewFont.addEventListener('click', () => {
-      const font = fontFamilySelect.value;
-      if (!font) { fontPreview.classList.remove('visible'); return; }
-      fontPreview.style.fontFamily = font;
-      fontPreview.textContent = `The quick brown fox — ${font}`;
-      fontPreview.classList.add('visible');
+      if (fontPreview.classList.contains('visible')) {
+        fontPreview.classList.remove('visible');
+      } else {
+        updateFontPreview();
+      }
     });
 
     // Line height — range 1.0–3.0, no snap needed
@@ -480,6 +498,17 @@
       });
     }
 
+    // Master on/off toggle — clicking the status badge toggles settings.enabled
+    statusBadge.addEventListener('click', async () => {
+      await pushSettings({ enabled: !settings.enabled });
+      renderSiteState();
+      // Pop animation on toggle
+      statusBadge.classList.remove('popping');
+      void statusBadge.offsetWidth; // restart animation
+      statusBadge.classList.add('popping');
+      statusBadge.addEventListener('animationend', () => statusBadge.classList.remove('popping'), { once: true });
+    });
+
     // Site toggle
     btnToggleSite.addEventListener('click', handleSiteToggle);
 
@@ -495,10 +524,15 @@
         return;
       }
       profileNameInput.setCustomValidity('');
-      const saved = await FontStorage.saveProfile(name, settings);
-      profiles.push(saved);
-      profileNameInput.value = '';
-      renderProfiles();
+      btnSaveProfile.disabled = true;
+      try {
+        const saved = await FontStorage.saveProfile(name, settings);
+        profiles.push(saved);
+        profileNameInput.value = '';
+        renderProfiles();
+      } finally {
+        btnSaveProfile.disabled = false;
+      }
     });
 
     profilesList.addEventListener('click', async e => {
@@ -527,7 +561,7 @@
           loadBtn.textContent = '✓ Loaded';
           setTimeout(() => { loadBtn.textContent = 'Load'; }, 1500);
         } else {
-          loadBtn.textContent = 'Load failed';
+          loadBtn.textContent = 'Failed';
           setTimeout(() => { loadBtn.textContent = 'Load'; }, 1500);
         }
       }
@@ -540,7 +574,7 @@
     });
 
     btnResetAll.addEventListener('click', async () => {
-      if (!confirm('Reset all font settings to defaults?')) return;
+      if (!confirm('Reset all settings to defaults? This can\'t be undone.')) return;
       settings = Object.assign({}, DEFAULT_SETTINGS);
       await FontStorage.saveSettings(settings);
       renderControls();

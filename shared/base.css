@@ -16,6 +16,8 @@
   --primary-hover: #1d4ed8;
   --danger: #dc2626;
   --danger-hover: #b91c1c;
+  --success: #15803d;          /* green — upload OK, status on */
+  --text-on-primary: #ffffff;  /* text colour on filled primary/danger buttons */
 
   /* Panel accent colors — shared between popup and options */
   --accent-typography: #d97706;   /* amber  */
@@ -50,6 +52,7 @@
     --primary-hover: #60a5fa;
     --danger: #f87171;
     --danger-hover: #ef4444;
+    --success: #4ade80;
 
     /* Dark panel accents — brighter for dark surfaces */
     --accent-typography: #f59e0b;
@@ -66,6 +69,7 @@ html[data-theme="dark"] {
   --primary-hover: #60a5fa;
   --danger: #f87171;
   --danger-hover: #ef4444;
+  --success: #4ade80;
   --accent-typography: #f59e0b;
   --accent-spacing:    #10b981;
   --accent-color-panel: #8b5cf6;
