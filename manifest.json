@@ -1,19 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Font Accessibility",
+  "name": "Typeset: Font, Spacing & Color Control",
   "version": "1.0.0",
   "description": "Customize fonts, sizes, spacing, and colors on any webpage for improved readability.",
   "default_locale": "en",
 
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting",
-    "tabs"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["<all_urls>"],
 
   "background": {
     "service_worker": "background/service-worker.js"
@@ -33,9 +26,7 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": [
-        "content/content-iframe-bridge.js"
-      ],
+      "js": ["content/content-iframe-bridge.js"],
       "run_at": "document_idle",
       "all_frames": false
     }
@@ -49,7 +40,7 @@
       "48": "assets/icons/icon-48.png",
       "128": "assets/icons/icon-128.png"
     },
-    "default_title": "Font Accessibility"
+    "default_title": "Typeset: Font, Spacing & Color Control"
   },
 
   "options_ui": {
