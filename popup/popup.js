@@ -16,6 +16,7 @@
 
   const statusBadge = $('status-badge');
   const statusText = $('status-text');
+  const statusLive = $('status-live');
   const siteLabel = $('site-label');
   const btnToggleSite = $('btn-toggle-site');
   const fontFamilySelect = $('font-family');
@@ -116,9 +117,20 @@
 
   // ---------- theme ----------
 
+  /**
+   * Resolve a stored scheme string to a concrete 'dark' | 'light' value.
+   * When no explicit preference is stored ('auto' is a legacy alias for this),
+   * fall back to the OS/browser system preference so the extension respects it
+   * on first use without requiring a manual toggle.
+   */
+  function resolveScheme(stored) {
+    if (stored === 'dark') return 'dark';
+    if (stored === 'light') return 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
   function applyTheme(scheme) {
-    // 'auto' is a legacy value — treat as light
-    const resolved = scheme === 'dark' ? 'dark' : 'light';
+    const resolved = resolveScheme(scheme);
     document.documentElement.setAttribute('data-theme', resolved);
     updateThemeButton(resolved);
   }
@@ -254,9 +266,14 @@
 
   function renderSiteState() {
     const active = isActiveOnSite() && settings.enabled;
+    const wasActive = statusBadge.classList.contains('status-badge--on');
     statusBadge.className = `status-badge ${active ? 'status-badge--on' : 'status-badge--off'}`;
     statusText.textContent = active ? 'ON' : 'OFF';
     statusBadge.setAttribute('aria-label', active ? 'Extension is on. Click to turn off.' : 'Extension is off. Click to turn on.');
+    // Announce state changes (but not the initial render)
+    if (statusLive && wasActive !== active) {
+      statusLive.textContent = active ? 'Extension turned on.' : 'Extension turned off.';
+    }
 
     if (isActiveOnSite()) {
       btnToggleSite.textContent = 'Disable on this site';
@@ -559,9 +576,11 @@
             }).catch(() => {});
           }
           loadBtn.textContent = '✓ Loaded';
+          if (statusLive) statusLive.textContent = 'Profile loaded.';
           setTimeout(() => { loadBtn.textContent = 'Load'; }, 1500);
         } else {
           loadBtn.textContent = 'Failed';
+          if (statusLive) statusLive.textContent = 'Failed to load profile.';
           setTimeout(() => { loadBtn.textContent = 'Load'; }, 1500);
         }
       }
@@ -598,6 +617,14 @@
     btnOptions.addEventListener('click', () => {
       chrome.runtime.openOptionsPage();
     });
+
+    // Tooltip: dismiss on Escape
+    const btnInfo = document.querySelector('.btn-info');
+    if (btnInfo) {
+      btnInfo.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { btnInfo.blur(); }
+      });
+    }
   }
 
   // ---------- tab switching ----------

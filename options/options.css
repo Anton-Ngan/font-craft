@@ -9,6 +9,23 @@
   --danger-border: #fecaca;
   --radius: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+
+  /* Primary tint — used for hover state on secondary buttons and upload area */
+  --bg-tint-primary: #eff6ff;
+
+  /* Font source tag palette */
+  --tag-bg:           #dbeafe;
+  --tag-text:         #1e40af;
+  --tag-google-bg:    #dcfce7;
+  --tag-google-text:  #166534;
+  --tag-upload-bg:    #fef3c7;
+  --tag-upload-text:  #92400e;
+  --tag-bundled-bg:   #ede9fe;
+  --tag-bundled-text: #5b21b6;
+
+  /* Toast */
+  --toast-bg:   #111827;
+  --toast-text: #ffffff;
 }
 
 body {
@@ -84,19 +101,18 @@ body {
   color: var(--text-muted);
   padding-bottom: 0;
   border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Colored indicator dot before each section title */
 .section-title::before {
   content: '';
-  display: inline-block;
+  flex-shrink: 0;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  margin-right: 8px;
-  vertical-align: middle;
-  position: relative;
-  top: -1px;
   background: var(--text-muted); /* overridden per section */
 }
 .section[aria-labelledby="section-fonts"]    .section-title::before { background: var(--accent-typography); }
@@ -186,7 +202,7 @@ body {
 .upload-area:hover,
 .upload-area.drag-over {
   border-color: var(--primary);
-  background: #eff6ff;
+  background: var(--bg-tint-primary);
   color: var(--text);
 }
 .upload-area:hover svg,
@@ -269,7 +285,7 @@ body {
 .btn--primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(37,99,235,.25); }
 .btn--primary:active { transform: translateY(0); box-shadow: none; }
 .btn--secondary { background: var(--bg-card); color: var(--primary); border-color: var(--border); }
-.btn--secondary:hover { background: #eff6ff; border-color: var(--primary); }
+.btn--secondary:hover { background: var(--bg-tint-primary); border-color: var(--primary); }
 .btn--danger { background: var(--bg-card); color: var(--danger); border-color: var(--border); }
 .btn--danger:hover { background: var(--danger); color: var(--text-on-primary); border-color: var(--danger); }
 .btn--sm { padding: 5px 12px; font-size: 12px; }
@@ -338,12 +354,12 @@ body {
   padding: 2px 7px;
   border-radius: 999px;
   white-space: nowrap;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--tag-bg);
+  color: var(--tag-text);
 }
-.list-item__tag--google  { background: #dcfce7; color: #166534; }
-.list-item__tag--upload  { background: #fef3c7; color: #92400e; }
-.list-item__tag--bundled { background: #ede9fe; color: #5b21b6; }
+.list-item__tag--google  { background: var(--tag-google-bg);  color: var(--tag-google-text); }
+.list-item__tag--upload  { background: var(--tag-upload-bg);  color: var(--tag-upload-text); }
+.list-item__tag--bundled { background: var(--tag-bundled-bg); color: var(--tag-bundled-text); }
 
 .list-item__actions {
   display: flex;
@@ -377,8 +393,8 @@ body {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: #111827;
-  color: #fff;
+  background: var(--toast-bg);
+  color: var(--toast-text);
   padding: 10px 20px;
   border-radius: 7px;
   font-size: 13px;
@@ -394,6 +410,18 @@ body {
 }
 
 /* ---------- Dark mode ---------- */
+/*
+ * Dark mode is applied two ways so that it works both before and after JS runs:
+ *   1. @media block — kicks in immediately on first paint if system prefers dark
+ *      and the user hasn't forced light.
+ *   2. html[data-theme="dark"] — set by JS on init (reads stored preference OR
+ *      system preference). This is the canonical source of truth at runtime.
+ *
+ * Because component rules use design tokens (var(--tag-bg), var(--bg-tint-primary),
+ * etc.), dark mode only needs to override token values here — no per-selector
+ * colour overrides needed for tokenised properties.
+ */
+
 /* Auto: follows system, suppressed if user forced light */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -404,20 +432,24 @@ body {
     --danger-bg: #2c1010;
     --danger-border: #7f1d1d;
     --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+
+    --bg-tint-primary:  #172554;
+    --tag-bg:           #172554;
+    --tag-text:         #93c5fd;
+    --tag-google-bg:    #14532d;
+    --tag-google-text:  #86efac;
+    --tag-upload-bg:    #1c1508;
+    --tag-upload-text:  #fcd34d;
+    --tag-bundled-bg:   #1c1231;
+    --tag-bundled-text: #c4b5fd;
   }
 
-  :root:not([data-theme="light"]) .list-item__tag          { background: #172554; color: #93c5fd; }
-  :root:not([data-theme="light"]) .list-item__tag--google  { background: #14532d; color: #86efac; }
-  :root:not([data-theme="light"]) .list-item__tag--upload  { background: #1c1508; color: #fcd34d; }
-  :root:not([data-theme="light"]) .list-item__tag--bundled { background: #1c1231; color: #c4b5fd; }
-  :root:not([data-theme="light"]) .upload-area:hover,
-  :root:not([data-theme="light"]) .upload-area.drag-over   { background: #172554; color: var(--text); }
-  :root:not([data-theme="light"]) .input                   { background: var(--bg); }
-  :root:not([data-theme="light"]) .btn--secondary          { background: var(--bg); }
-  :root:not([data-theme="light"]) .btn--secondary:hover    { background: var(--bg-card); }
-  :root:not([data-theme="light"]) .btn-icon:hover          { background: var(--bg-card); }
-  :root:not([data-theme="light"]) .inline-rename-input     { background: var(--bg); }
-  :root:not([data-theme="light"]) .list-item:hover         { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .input               { background: var(--bg); }
+  :root:not([data-theme="light"]) .btn--secondary      { background: var(--bg); }
+  :root:not([data-theme="light"]) .btn--secondary:hover { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .btn-icon:hover      { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .inline-rename-input { background: var(--bg); }
+  :root:not([data-theme="light"]) .list-item:hover     { background: var(--bg-card); }
 }
 
 /* Forced dark: always dark regardless of system */
@@ -429,16 +461,64 @@ html[data-theme="dark"] {
   --danger-bg: #2c1010;
   --danger-border: #7f1d1d;
   --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+
+  --bg-tint-primary:  #172554;
+  --tag-bg:           #172554;
+  --tag-text:         #93c5fd;
+  --tag-google-bg:    #14532d;
+  --tag-google-text:  #86efac;
+  --tag-upload-bg:    #1c1508;
+  --tag-upload-text:  #fcd34d;
+  --tag-bundled-bg:   #1c1231;
+  --tag-bundled-text: #c4b5fd;
 }
-html[data-theme="dark"] .list-item__tag          { background: #172554; color: #93c5fd; }
-html[data-theme="dark"] .list-item__tag--google  { background: #14532d; color: #86efac; }
-html[data-theme="dark"] .list-item__tag--upload  { background: #1c1508; color: #fcd34d; }
-html[data-theme="dark"] .list-item__tag--bundled { background: #1c1231; color: #c4b5fd; }
-html[data-theme="dark"] .upload-area:hover,
-html[data-theme="dark"] .upload-area.drag-over   { background: #172554; color: var(--text); }
-html[data-theme="dark"] .input                   { background: var(--bg); }
-html[data-theme="dark"] .btn--secondary          { background: var(--bg); }
-html[data-theme="dark"] .btn--secondary:hover    { background: var(--bg-card); }
-html[data-theme="dark"] .btn-icon:hover          { background: var(--bg-card); }
-html[data-theme="dark"] .inline-rename-input     { background: var(--bg); }
-html[data-theme="dark"] .list-item:hover         { background: var(--bg-card); }
+html[data-theme="dark"] .input               { background: var(--bg); }
+html[data-theme="dark"] .btn--secondary      { background: var(--bg); }
+html[data-theme="dark"] .btn--secondary:hover { background: var(--bg-card); }
+html[data-theme="dark"] .btn-icon:hover      { background: var(--bg-card); }
+html[data-theme="dark"] .inline-rename-input { background: var(--bg); }
+html[data-theme="dark"] .list-item:hover     { background: var(--bg-card); }
+
+/* ---------- Narrow viewports (≤520px) ---------- */
+/*
+ * The options page opens as a full browser tab and may be viewed on a
+ * Chromebook, a tablet, or a narrow window. The critical breakpoint is 520px:
+ * below this the profile-save-row's long button ("Save current settings")
+ * leaves the adjacent text input under 100px wide. All other flex rows are
+ * fine — their buttons are short enough to share a line.
+ */
+@media (max-width: 520px) {
+  .page {
+    padding: 20px 16px 48px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+    gap: 10px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .card {
+    padding: 14px 16px;
+  }
+
+  .upload-area {
+    padding: 20px 16px;
+  }
+
+  /* Stack the profile save row so the long button label doesn't crowd the input */
+  .profile-save-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .profile-save-row .btn {
+    width: 100%;
+  }
+}

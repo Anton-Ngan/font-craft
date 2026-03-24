@@ -47,9 +47,20 @@
 
   // ---------- theme ----------
 
+  /**
+   * Resolve a stored scheme string to a concrete 'dark' | 'light' value.
+   * When no explicit preference is stored ('auto' is a legacy alias for this),
+   * fall back to the OS/browser system preference so the extension respects it
+   * on first use without requiring a manual toggle.
+   */
+  function resolveScheme(stored) {
+    if (stored === 'dark') return 'dark';
+    if (stored === 'light') return 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
   function applyTheme(scheme) {
-    // 'auto' is a legacy value — treat as light
-    const resolved = scheme === 'dark' ? 'dark' : 'light';
+    const resolved = resolveScheme(scheme);
     document.documentElement.setAttribute('data-theme', resolved);
     updateThemeButton(resolved);
   }
@@ -119,7 +130,7 @@
       const safeName = escapeHtml(f.name);
       const safeId = escapeHtml(f.id);
       item.innerHTML = `
-        <span class="list-item__name list-item__name--editable" role="button" tabindex="0" data-id="${safeId}" title="Click or press Enter to rename">${safeName}</span>
+        <span class="list-item__name list-item__name--editable" role="button" tabindex="0" data-id="${safeId}" aria-label="${safeName}, press Enter to rename" title="Click or press Enter to rename">${safeName}</span>
         <span class="list-item__tag ${tagClass}" title="${tagTitle}">${tagLabel}</span>
         <div class="list-item__actions">
           <button class="btn-icon btn-delete-font" data-id="${safeId}" aria-label="Delete font ${safeName}" title="Delete">✕</button>
@@ -281,7 +292,7 @@
     const list = $('profiles-list');
     list.innerHTML = '';
     if (!profiles.length) {
-      list.innerHTML = '<p class="empty-msg">No profiles saved yet.</p>';
+      list.innerHTML = '<p class="empty-msg">No saved profiles yet.</p>';
       return;
     }
     profiles.forEach(p => {
@@ -293,7 +304,7 @@
       const dateVal = p.created ? new Date(p.created) : null;
       const date = (dateVal && !isNaN(dateVal)) ? dateVal.toLocaleDateString() : '—';
       item.innerHTML = `
-        <span class="list-item__name list-item__name--editable" role="button" tabindex="0" data-id="${safeId}" title="Click or press Enter to rename">${safeName}</span>
+        <span class="list-item__name list-item__name--editable" role="button" tabindex="0" data-id="${safeId}" aria-label="${safeName}, press Enter to rename" title="Click or press Enter to rename">${safeName}</span>
         <span class="list-item__tag">${date}</span>
         <div class="list-item__actions">
           <button class="btn btn--secondary btn--sm btn-load-profile" data-id="${safeId}" aria-label="Load profile ${safeName}">Load</button>
@@ -537,7 +548,7 @@
       if (deleteBtn) {
         const id = deleteBtn.dataset.id;
         const p = profiles.find(pr => pr.id === id);
-        if (p && confirm(`Delete profile "${p.name}"?`)) {
+        if (p && confirm(`Delete profile "${p.name}"? This can't be undone.`)) {
           await FontStorage.deleteProfile(id);
           profiles = profiles.filter(pr => pr.id !== id);
           renderProfiles();

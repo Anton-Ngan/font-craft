@@ -18,12 +18,13 @@
     </div>
     <div class="header-actions">
       <button id="btn-theme-toggle" class="btn-theme-toggle" type="button" aria-label="Switch to dark mode"></button>
-      <button id="status-badge" class="status-badge status-badge--off" type="button" aria-live="polite"
+      <button id="status-badge" class="status-badge status-badge--off" type="button"
         aria-label="Extension off. Click to enable.">
         <span id="status-text">Loading…</span>
       </button>
     </div>
   </header>
+  <span id="status-live" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></span>
 
   <!-- Site toggle bar -->
   <div class="site-bar" id="site-bar">
@@ -57,7 +58,7 @@
     <div class="field">
       <label class="label" for="font-family">Font</label>
       <div class="font-select-wrap">
-        <select id="font-family" class="select" aria-label="Choose font">
+        <select id="font-family" class="select">
           <option value="">Keep page font</option>
           <optgroup label="Accessibility Fonts">
             <!-- Populated by JS -->
@@ -184,7 +185,7 @@
   <section id="panel-profiles" class="panel" role="tabpanel" aria-labelledby="tab-profiles" tabindex="0" hidden>
     <div class="field">
       <div class="profile-save-row">
-        <input type="text" id="profile-name" class="input" placeholder="Profile name" aria-label="New profile name"
+        <input type="text" id="profile-name" class="input" placeholder="New profile name" aria-label="New profile name"
           maxlength="40">
         <button id="btn-save-profile" class="btn btn--primary btn--sm">Save profile</button>
       </div>
@@ -205,8 +206,8 @@
       Manage fonts &amp; site rules
     </button>
     <div class="info-wrap">
-      <button class="btn-info" type="button" aria-label="Extension limitations">ⓘ</button>
-      <div class="info-tooltip" role="tooltip">
+      <button class="btn-info" type="button" aria-label="Where this extension can't run" aria-describedby="info-tooltip">ⓘ</button>
+      <div class="info-tooltip" id="info-tooltip" role="tooltip">
         <strong>Where this won't work</strong><br>
         This extension can't run on Chrome's built-in pages (like the Web Store or chrome://settings). It may also not
         work on sites that actively block browser extensions.
