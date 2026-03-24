@@ -1,15 +1,16 @@
 // options/options.js
 // Entry point: initializes state from storage, wires up all modules, and starts the options page.
-// @ts-nocheck — globals (FontStorage, MESSAGE_TYPES, DEFAULT_SETTINGS, etc.) loaded via <script> tags
 
 // ---------- toast ----------
 
 function showToast(msg, duration = 2500) {
-  const toast = document.getElementById('toast');
+  const toast = document.getElementById("toast");
   toast.textContent = msg;
   toast.hidden = false;
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => { toast.hidden = true; }, duration);
+  toast._timer = setTimeout(() => {
+    toast.hidden = true;
+  }, duration);
 }
 
 // ---------- init ----------
@@ -23,7 +24,7 @@ async function init() {
   ]);
 
   await injectExtensionFontFaces(customFonts);
-  applyTheme(currentSettings.colorScheme || 'light');
+  applyTheme(currentSettings.colorScheme || "light");
   renderSiteMode();
   renderSiteList();
   renderCustomFonts();

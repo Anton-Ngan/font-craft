@@ -1,0 +1,299 @@
+/* popup-layout.css — variables, body, header, status badge, site bar, tabs, panels, fields */
+
+:root {
+  --bg: #fafaf9;
+  --bg-subtle: #f4f3f0;
+  --bg-hover: #eceae5;
+  --bg-card: #ffffff;
+  --border: #d1d5db;
+  --status-on-bg: #dcfce7;
+  --status-on-text: #14532d;
+  --status-off-bg: #f3f4f6;
+  --status-off-text: var(
+    --text-muted
+  ); /* inherits #5e6878 — passes WCAG AA 4.5:1 */
+  --radius: 6px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  /* Easing curves */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /*
+   * Active tab text colors — darker amber/green/violet for AA contrast on the
+   * white pill in light mode; overridden to lighter values in dark mode.
+   */
+  --tab-accent-typography: #92400e; /* amber-900  */
+  --tab-accent-spacing: #065f46; /* green-900  */
+  --tab-accent-color: #5b21b6; /* violet-900 */
+  --tab-accent-profiles: var(--primary-hover);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  width: 340px;
+  min-height: 100px;
+  overflow-x: hidden;
+}
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.header-title {
+  font-weight: 600;
+  font-size: 13px;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Theme toggle — small ghost icon button */
+.btn-theme-toggle {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  transition:
+    background 0.1s,
+    color 0.1s,
+    border-color 0.1s;
+  flex-shrink: 0;
+}
+.btn-theme-toggle:hover,
+.btn-theme-toggle:focus-visible {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* ---------- Status badge — animated dot indicator ---------- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition:
+    filter 0.12s,
+    background-color 0.2s var(--ease-out-quart),
+    color 0.15s ease-out;
+}
+.status-badge:hover {
+  filter: brightness(0.9);
+}
+.status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.status-badge--on {
+  background: var(--status-on-bg);
+  color: var(--status-on-text);
+}
+.status-badge--on::before {
+  animation: badge-pulse 2.4s ease-in-out infinite;
+}
+.status-badge--off {
+  background: var(--status-off-bg);
+  color: var(--status-off-text);
+}
+@keyframes badge-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Site bar ---------- */
+.site-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+.site-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.btn-site-toggle {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1.5px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    background 0.1s,
+    color 0.1s;
+}
+.btn-site-toggle:hover,
+.btn-site-toggle:focus-visible,
+.btn-site-toggle.active {
+  background: var(--primary);
+  color: var(--text-on-primary);
+}
+
+/* ---------- Tabs — pill-in-tray ---------- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 5px 6px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  flex: 1;
+  padding: 5px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    background 0.12s;
+  white-space: nowrap;
+}
+.tab:hover {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
+}
+.tab--active {
+  background: var(--bg-card);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Per-tab accent text on active state */
+.tab[data-panel="typography"].tab--active {
+  color: var(--tab-accent-typography);
+}
+.tab[data-panel="spacing"].tab--active {
+  color: var(--tab-accent-spacing);
+}
+.tab[data-panel="color"].tab--active {
+  color: var(--tab-accent-color);
+}
+.tab[data-panel="profiles"].tab--active {
+  color: var(--tab-accent-profiles);
+}
+
+/* ---------- Panels ---------- */
+.panel {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Panel accent border-tops reinforce tab color identity */
+#panel-typography {
+  border-top: 2px solid var(--accent-typography);
+}
+#panel-spacing {
+  border-top: 2px solid var(--accent-spacing);
+}
+#panel-color {
+  border-top: 2px solid var(--accent-color-panel);
+}
+#panel-profiles {
+  border-top: 2px solid var(--primary);
+}
+
+/* ---------- Fields ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field--separator {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.value-label {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Label right side: value + reset button grouped */
+.label-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
