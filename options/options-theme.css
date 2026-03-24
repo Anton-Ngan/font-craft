@@ -1,0 +1,114 @@
+/* options-theme.css — dark mode and narrow viewport breakpoint */
+
+/*
+ * Dark mode is applied two ways so that it works both before and after JS runs:
+ *   1. @media block — kicks in immediately on first paint if system prefers dark
+ *      and the user hasn't forced light.
+ *   2. html[data-theme="dark"] — set by JS on init (reads stored preference OR
+ *      system preference). This is the canonical source of truth at runtime.
+ *
+ * Because component rules use design tokens (var(--tag-bg), var(--bg-tint-primary),
+ * etc.), dark mode only needs to override token values here — no per-selector
+ * colour overrides needed for tokenised properties.
+ */
+
+/* Auto: follows system, suppressed if user forced light */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1917;
+    --bg-card: #222120;
+    --bg-hover: #2c2a28;
+    --border: #3a3836;
+    --danger-bg: #2c1010;
+    --danger-border: #7f1d1d;
+    --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+
+    --bg-tint-primary:  #172554;
+    --tag-bg:           #172554;
+    --tag-text:         #93c5fd;
+    --tag-google-bg:    #14532d;
+    --tag-google-text:  #86efac;
+    --tag-upload-bg:    #1c1508;
+    --tag-upload-text:  #fcd34d;
+    --tag-bundled-bg:   #1c1231;
+    --tag-bundled-text: #c4b5fd;
+  }
+
+  :root:not([data-theme="light"]) .input               { background: var(--bg); }
+  :root:not([data-theme="light"]) .btn--secondary      { background: var(--bg); }
+  :root:not([data-theme="light"]) .btn--secondary:hover { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .btn-icon:hover      { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .inline-rename-input { background: var(--bg); }
+  :root:not([data-theme="light"]) .list-item:hover     { background: var(--bg-card); }
+}
+
+/* Forced dark: always dark regardless of system */
+html[data-theme="dark"] {
+  --bg: #1a1917;
+  --bg-card: #222120;
+  --bg-hover: #2c2a28;
+  --border: #3a3836;
+  --danger-bg: #2c1010;
+  --danger-border: #7f1d1d;
+  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+
+  --bg-tint-primary:  #172554;
+  --tag-bg:           #172554;
+  --tag-text:         #93c5fd;
+  --tag-google-bg:    #14532d;
+  --tag-google-text:  #86efac;
+  --tag-upload-bg:    #1c1508;
+  --tag-upload-text:  #fcd34d;
+  --tag-bundled-bg:   #1c1231;
+  --tag-bundled-text: #c4b5fd;
+}
+html[data-theme="dark"] .input               { background: var(--bg); }
+html[data-theme="dark"] .btn--secondary      { background: var(--bg); }
+html[data-theme="dark"] .btn--secondary:hover { background: var(--bg-card); }
+html[data-theme="dark"] .btn-icon:hover      { background: var(--bg-card); }
+html[data-theme="dark"] .inline-rename-input { background: var(--bg); }
+html[data-theme="dark"] .list-item:hover     { background: var(--bg-card); }
+
+/* ---------- Narrow viewports (≤520px) ---------- */
+/*
+ * The options page opens as a full browser tab and may be viewed on a
+ * Chromebook, a tablet, or a narrow window. The critical breakpoint is 520px:
+ * below this the profile-save-row's long button ("Save current settings")
+ * leaves the adjacent text input under 100px wide. All other flex rows are
+ * fine — their buttons are short enough to share a line.
+ */
+@media (max-width: 520px) {
+  .page {
+    padding: 20px 16px 48px;
+  }
+
+  .page-header {
+    margin-bottom: 28px;
+    gap: 10px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .card {
+    padding: 14px 16px;
+  }
+
+  .upload-area {
+    padding: 20px 16px;
+  }
+
+  /* Stack the profile save row so the long button label doesn't crowd the input */
+  .profile-save-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .profile-save-row .btn {
+    width: 100%;
+  }
+}
