@@ -49,13 +49,52 @@ Full license text is in [`fonts/bundled/README.md`](fonts/bundled/README.md).
 ## Project structure
 
 ```
-background/       Service worker — toolbar badge, tab change monitoring
-content/          Content scripts — CSS injection, SPA support via MutationObserver, iframe bridge
-popup/            Toolbar popup — Typography / Spacing / Color / Profiles tabs
-options/          Full options page — custom fonts, site rules, profile management
-shared/           Constants, storage abstraction, font catalog, base CSS tokens
-fonts/bundled/    Bundled font files and license attribution
-assets/icons/     Extension icons at 16, 32, 48, and 128px
+background/
+  service-worker.js          Toolbar badge, tab change monitoring
+
+content/
+  content-main.js            CSS injection, active-state check, SPA resilience
+  content-inspector.js       Interactive font inspector tool
+  content-iframe-bridge.js   Relays settings to cross-origin child iframes
+
+popup/
+  popup.html                 Markup for the 340px popup panel
+  popup.js                   Entry point — init() and pushSettings()
+  popup-state.js             Shared mutable state (settings, profiles, etc.)
+  popup-dom.js               DOM element references
+  popup-helpers.js           Slider fill, step, color hex, tab switching
+  popup-controls.js          renderControls() — syncs inputs to settings
+  popup-fonts.js             Font select population and preview strip
+  popup-site.js              Site active-state logic and site toggle
+  popup-profiles.js          Profile list rendering and inline rename
+  popup-events.js            All event listener wiring (bindEvents)
+  popup-layout.css           Variables, body, header, badge, site bar, tabs, panels, fields
+  popup-controls.css         Font selector, sliders, inputs, color pickers, buttons
+  popup-theme.css            Profiles, footer, tooltip, animations, scrollbar, dark mode
+
+options/
+  options.html               Markup for the full settings page
+  options.js                 Entry point — showToast() and init()
+  options-state.js           Shared mutable state (siteConfig, customFonts, etc.)
+  options-fonts.js           Custom font list, file upload, Google Fonts handling
+  options-profiles.js        Profile list rendering and inline rename
+  options-sites.js           Site mode radios and site list rendering
+  options-events.js          All event listener wiring (bindEvents, notifyAllTabs)
+  options-layout.css         Variables, body, page layout, header, sections, cards, upload area
+  options-components.css     Inputs, radio group, buttons, item lists, tags, toast
+  options-theme.css          Dark mode and narrow viewport breakpoint
+
+shared/
+  constants.js               STORAGE_KEYS, MESSAGE_TYPES, DEFAULT_SETTINGS, SITE_MODES
+  storage.js                 FontStorage — all chrome.storage read/write operations
+  font-list.js               BUNDLED_FONTS and SYSTEM_FONTS catalogs
+  utils.js                   escapeHtml() for XSS protection
+  theme.js                   resolveScheme(), applyTheme(), updateThemeButton()
+  font-inject.js             injectExtensionFontFaces() for font preview in UI pages
+  base.css                   Design tokens (colors, typography, focus styles)
+
+fonts/bundled/               OpenDyslexic, Atkinson Hyperlegible, Lexend + license notes
+assets/icons/                Extension icons at 16, 32, 48, and 128px
 ```
 
 ## Architecture notes
