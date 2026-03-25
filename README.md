@@ -1,17 +1,16 @@
 # Typeset: Font, Spacing & Color Control
 
-A Chrome extension that lets you override fonts, spacing, and colors on any webpage — designed for users with dyslexia, low vision, or other reading difficulties, and for anyone who wants more control over how the web looks.
+A Chrome extension that lets you override fonts, spacing, and colors on any webpage. It's designed for users with dyslexia, low vision, or other reading difficulties, and for anyone who wants more control over the typeset in their the webpage.
 
 ## Features
 
-- **Font family** — switch to OpenDyslexic, Atkinson Hyperlegible, Lexend, any system font, or upload your own (.woff2, .woff, .ttf, .otf)
-- **Font scale** — increase or decrease the base font size
-- **Line height, letter spacing, word spacing, paragraph spacing** — fine-grained control over text density
-- **Text color** — override foreground color across the page
-- **Selection highlight color** — set a custom background and foreground for selected text
-- **Profiles** — save named setting combinations and switch between them instantly
-- **Per-site control** — apply everywhere, only on specific sites, or skip specific sites
-- **Light and dark theme** — the extension UI follows your preference or can be forced
+- **Font family**: switch to OpenDyslexic, Atkinson Hyperlegible, Lexend, any system font, or upload your own (.woff2, .woff, .ttf, .otf)
+- **Line height, letter spacing, word spacing, paragraph spacing**: fine-grained control over text density
+- **Text color**: override foreground color across the page
+- **Selection highlight color**: set a custom background and foreground for selected text
+- **Profiles**: save named setting combinations and switch between them instantly
+- **Per-site control**: apply everywhere, only on specific sites, or skip specific sites
+- **Light and dark theme**: the extension UI follows your preference or can be forced
 
 ## Installation
 
@@ -99,11 +98,11 @@ assets/icons/                Extension icons at 16, 32, 48, and 128px
 
 ## Architecture notes
 
-**Settings are applied via CSS custom properties** — the content script sets `--fa-*` variables on `:root` which cascade to all elements. This is a single-pass operation rather than per-element manipulation, and handles dynamically added content without re-traversal.
+**Settings are applied via CSS custom properties**: the content script sets `--fa-*` variables on `:root` which cascade to all elements. This is a single-pass operation rather than per-element manipulation, and handles dynamically added content without re-traversal.
 
-**Tiered storage** — settings and profiles use `chrome.storage.sync` (syncs across devices). Custom font binaries use `chrome.storage.local` (too large for sync). The `FontStorage` abstraction in `shared/storage.js` handles both.
+**Tiered storage**: settings and profiles use `chrome.storage.sync` (syncs across devices). Custom font binaries use `chrome.storage.local` (too large for sync). The `FontStorage` abstraction in `shared/storage.js` handles both.
 
-**SPA support** — a `MutationObserver` in `content-main.js` watches for DOM changes and reapplies styles, so the extension works on React, Vue, Angular, and other single-page apps that swap content without a full page load.
+**SPA support**: a `MutationObserver` in `content-main.js` watches for DOM changes and reapplies styles, so the extension works on React, Vue, Angular, and other single-page apps that swap content without a full page load.
 
 **Message types** between popup, content scripts, and service worker:
 
