@@ -21,25 +21,37 @@
     --border: #3a3836;
     --danger-bg: #2c1010;
     --danger-border: #7f1d1d;
-    --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
 
-    --bg-tint-primary:  #172554;
-    --tag-bg:           #172554;
-    --tag-text:         #93c5fd;
-    --tag-google-bg:    #14532d;
-    --tag-google-text:  #86efac;
-    --tag-upload-bg:    #1c1508;
-    --tag-upload-text:  #fcd34d;
-    --tag-bundled-bg:   #1c1231;
+    --bg-tint-primary: #172554;
+    --tag-bg: #172554;
+    --tag-text: #93c5fd;
+    --tag-google-bg: #14532d;
+    --tag-google-text: #86efac;
+    --tag-upload-bg: #1c1508;
+    --tag-upload-text: #fcd34d;
+    --tag-bundled-bg: #1c1231;
     --tag-bundled-text: #c4b5fd;
   }
 
-  :root:not([data-theme="light"]) .input               { background: var(--bg); }
-  :root:not([data-theme="light"]) .btn--secondary      { background: var(--bg); }
-  :root:not([data-theme="light"]) .btn--secondary:hover { background: var(--bg-card); }
-  :root:not([data-theme="light"]) .btn-icon:hover      { background: var(--bg-card); }
-  :root:not([data-theme="light"]) .inline-rename-input { background: var(--bg); }
-  :root:not([data-theme="light"]) .list-item:hover     { background: var(--bg-card); }
+  :root:not([data-theme="light"]) .input {
+    background: var(--bg);
+  }
+  :root:not([data-theme="light"]) .btn--secondary {
+    background: var(--bg);
+  }
+  :root:not([data-theme="light"]) .btn--secondary:hover {
+    background: var(--bg-card);
+  }
+  :root:not([data-theme="light"]) .btn-icon:hover {
+    background: var(--bg-card);
+  }
+  :root:not([data-theme="light"]) .inline-rename-input {
+    background: var(--bg);
+  }
+  :root:not([data-theme="light"]) .list-item:hover {
+    background: var(--bg-card);
+  }
 }
 
 /* Forced dark: always dark regardless of system */
@@ -50,24 +62,36 @@ html[data-theme="dark"] {
   --border: #3a3836;
   --danger-bg: #2c1010;
   --danger-border: #7f1d1d;
-  --shadow: 0 1px 3px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.04);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
 
-  --bg-tint-primary:  #172554;
-  --tag-bg:           #172554;
-  --tag-text:         #93c5fd;
-  --tag-google-bg:    #14532d;
-  --tag-google-text:  #86efac;
-  --tag-upload-bg:    #1c1508;
-  --tag-upload-text:  #fcd34d;
-  --tag-bundled-bg:   #1c1231;
+  --bg-tint-primary: #172554;
+  --tag-bg: #172554;
+  --tag-text: #93c5fd;
+  --tag-google-bg: #14532d;
+  --tag-google-text: #86efac;
+  --tag-upload-bg: #1c1508;
+  --tag-upload-text: #fcd34d;
+  --tag-bundled-bg: #1c1231;
   --tag-bundled-text: #c4b5fd;
 }
-html[data-theme="dark"] .input               { background: var(--bg); }
-html[data-theme="dark"] .btn--secondary      { background: var(--bg); }
-html[data-theme="dark"] .btn--secondary:hover { background: var(--bg-card); }
-html[data-theme="dark"] .btn-icon:hover      { background: var(--bg-card); }
-html[data-theme="dark"] .inline-rename-input { background: var(--bg); }
-html[data-theme="dark"] .list-item:hover     { background: var(--bg-card); }
+html[data-theme="dark"] .input {
+  background: var(--bg);
+}
+html[data-theme="dark"] .btn--secondary {
+  background: var(--bg);
+}
+html[data-theme="dark"] .btn--secondary:hover {
+  background: var(--bg-card);
+}
+html[data-theme="dark"] .btn-icon:hover {
+  background: var(--bg-card);
+}
+html[data-theme="dark"] .inline-rename-input {
+  background: var(--bg);
+}
+html[data-theme="dark"] .list-item:hover {
+  background: var(--bg-card);
+}
 
 /* ---------- Narrow viewports (≤520px) ---------- */
 /*

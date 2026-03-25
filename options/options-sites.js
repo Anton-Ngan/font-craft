@@ -1,24 +1,25 @@
 // options/options-sites.js
 // Site mode radio rendering and site list management.
-// @ts-nocheck — depends on globals from options-state.js, shared/constants.js
 
 function renderSiteMode() {
   const radios = document.querySelectorAll('input[name="site-mode"]');
-  radios.forEach(r => { r.checked = r.value === siteConfig.siteMode; });
+  radios.forEach((r) => {
+    r.checked = r.value === siteConfig.siteMode;
+  });
   updateSiteListVisibility();
 }
 
 function renderSiteList() {
-  const list = document.getElementById('site-list');
-  list.innerHTML = '';
+  const list = document.getElementById("site-list");
+  list.innerHTML = "";
   if (!siteConfig.siteList.length) {
     list.innerHTML = '<p class="empty-msg">No sites in the list yet.</p>';
     return;
   }
-  siteConfig.siteList.forEach(site => {
-    const item = document.createElement('div');
-    item.className = 'list-item';
-    item.setAttribute('role', 'listitem');
+  siteConfig.siteList.forEach((site) => {
+    const item = document.createElement("div");
+    item.className = "list-item";
+    item.setAttribute("role", "listitem");
     const safeSite = escapeHtml(site);
     item.innerHTML = `
       <span class="list-item__name">${safeSite}</span>
@@ -30,21 +31,23 @@ function renderSiteList() {
 }
 
 function updateSiteListVisibility() {
-  const card  = document.getElementById('site-list-card');
-  const hint  = document.getElementById('site-list-hint');
-  const title = document.getElementById('site-list-title');
-  const mode  = siteConfig.siteMode;
+  const card = document.getElementById("site-list-card");
+  const hint = document.getElementById("site-list-hint");
+  const title = document.getElementById("site-list-title");
+  const mode = siteConfig.siteMode;
 
   if (mode === SITE_MODES.GLOBAL) {
     card.hidden = true;
   } else {
     card.hidden = false;
     if (mode === SITE_MODES.WHITELIST) {
-      title.textContent = 'Allowed sites';
-      hint.innerHTML = 'Extension is <strong>only active</strong> on these domains.';
+      title.textContent = "Allowed sites";
+      hint.innerHTML =
+        "Extension is <strong>only active</strong> on these domains.";
     } else {
-      title.textContent = 'Blocked sites';
-      hint.innerHTML = 'Extension is <strong>disabled</strong> on these domains.';
+      title.textContent = "Blocked sites";
+      hint.innerHTML =
+        "Extension is <strong>disabled</strong> on these domains.";
     }
   }
 }

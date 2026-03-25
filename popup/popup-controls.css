@@ -14,10 +14,16 @@
   transition: color 0.1s;
   white-space: nowrap;
 }
-.btn-reset-slider:hover { color: var(--danger); }
+.btn-reset-slider:hover {
+  color: var(--danger);
+}
 
 /* ---------- Font selector ---------- */
-.font-select-wrap { display: flex; gap: 4px; overflow: hidden; }
+.font-select-wrap {
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+}
 .select {
   flex: 1;
   min-width: 0;
@@ -29,8 +35,13 @@
   background: var(--bg);
   cursor: pointer;
 }
-.select:hover { border-color: var(--primary); }
-.select:focus-visible { border-color: var(--border-focus); outline: none; }
+.select:hover {
+  border-color: var(--primary);
+}
+.select:focus-visible {
+  border-color: var(--border-focus);
+  outline: none;
+}
 
 /* Preview strip with amber left border — ties to typography panel */
 .font-preview {
@@ -43,7 +54,9 @@
   color: var(--text);
   display: none;
 }
-.font-preview.visible { display: block; }
+.font-preview.visible {
+  display: block;
+}
 
 /* ---------- Sliders — filled track via CSS variable ---------- */
 /*
@@ -62,7 +75,9 @@
     var(--border) var(--fill, 0%)
   );
 }
-#panel-spacing .slider { --slider-fill: var(--accent-spacing); }
+#panel-spacing .slider {
+  --slider-fill: var(--accent-spacing);
+}
 
 .slider::-webkit-slider-thumb {
   appearance: none;
@@ -75,8 +90,12 @@
   box-shadow: 0 0 0 1.5px var(--slider-fill, var(--primary));
   transition: transform 0.1s;
 }
-.slider:active::-webkit-slider-thumb { transform: scale(1.18); }
-.slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--border-focus); }
+.slider:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+}
+.slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--border-focus);
+}
 
 .range-hints {
   display: flex;
@@ -92,7 +111,10 @@
   align-items: center;
   gap: 6px;
 }
-.slider-with-btns .slider { flex: 1; min-width: 0; }
+.slider-with-btns .slider {
+  flex: 1;
+  min-width: 0;
+}
 
 /* Step buttons — 28×28 minimum for WCAG 2.5.8 motor accessibility */
 .btn-slider-step {
@@ -109,14 +131,21 @@
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  transition: background 0.1s, color 0.1s, border-color 0.1s, transform 0.08s;
+  transition:
+    background 0.1s,
+    color 0.1s,
+    border-color 0.1s,
+    transform 0.08s;
 }
 .btn-slider-step:hover {
   background: var(--bg-hover);
   color: var(--text);
   border-color: var(--primary);
 }
-.btn-slider-step:active { background: var(--bg-card); transform: scale(0.88); }
+.btn-slider-step:active {
+  background: var(--bg-card);
+  transform: scale(0.88);
+}
 
 /* ---------- Inputs ---------- */
 .input {
@@ -128,11 +157,20 @@
   background: var(--bg);
   flex: 1;
 }
-.input:hover { border-color: var(--primary); }
-.input:focus-visible { border-color: var(--border-focus); outline: none; }
+.input:hover {
+  border-color: var(--primary);
+}
+.input:focus-visible {
+  border-color: var(--border-focus);
+  outline: none;
+}
 
 /* ---------- Color inputs ---------- */
-.color-row { display: flex; align-items: center; gap: 8px; }
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .color-input {
   width: 48px;
   height: 34px;
@@ -144,7 +182,9 @@
   flex-shrink: 0;
   transition: border-color 0.1s;
 }
-.color-input:hover { border-color: var(--primary); }
+.color-input:hover {
+  border-color: var(--primary);
+}
 
 /* Live hex value display */
 .color-hex {
@@ -155,7 +195,10 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
-.color-hex--unset { opacity: 0.65; font-style: italic; }
+.color-hex--unset {
+  opacity: 0.65;
+  font-style: italic;
+}
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -169,16 +212,44 @@
   font-weight: 600;
   cursor: pointer;
   border: 1.5px solid transparent;
-  transition: background 0.1s, color 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    color 0.1s,
+    border-color 0.1s;
   white-space: nowrap;
 }
-.btn--primary { background: var(--primary); color: var(--text-on-primary); border-color: var(--primary); }
-.btn--primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
-.btn--secondary { background: var(--bg); color: var(--primary); border-color: var(--border); }
-.btn--secondary:hover { background: var(--bg-hover); border-color: var(--primary); }
-.btn--danger { background: var(--bg); color: var(--danger); border-color: var(--border); }
-.btn--danger:hover { background: var(--danger); color: var(--text-on-primary); border-color: var(--danger); }
-.btn--sm { padding: 4px 10px; font-size: 12px; }
+.btn--primary {
+  background: var(--primary);
+  color: var(--text-on-primary);
+  border-color: var(--primary);
+}
+.btn--primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+.btn--secondary {
+  background: var(--bg);
+  color: var(--primary);
+  border-color: var(--border);
+}
+.btn--secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary);
+}
+.btn--danger {
+  background: var(--bg);
+  color: var(--danger);
+  border-color: var(--border);
+}
+.btn--danger:hover {
+  background: var(--danger);
+  color: var(--text-on-primary);
+  border-color: var(--danger);
+}
+.btn--sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
 
 .btn-small {
   font-size: 12px;
@@ -190,8 +261,17 @@
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.1s, color 0.1s;
+  transition:
+    background 0.1s,
+    color 0.1s;
 }
-.btn-small:hover { background: var(--bg-hover); color: var(--text); }
+.btn-small:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
 
-.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}

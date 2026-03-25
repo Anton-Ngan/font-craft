@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+package-lock.json
+package.json
+
+# Test
+tests/
+jest.config.js
+
+# Test output
+coverage/
+.nyc_output/
+
+# Jest cache
+.jest-cache/
+jest_*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Build output (if added later)
+dist/
+build/
+
+# Environment / secrets
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*

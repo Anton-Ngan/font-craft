@@ -1,7 +1,10 @@
 /* popup-theme.css — profiles, footer, info tooltip, animations, scrollbar, dark mode */
 
 /* ---------- Profiles ---------- */
-.profile-save-row { display: flex; gap: 6px; }
+.profile-save-row {
+  display: flex;
+  gap: 6px;
+}
 
 .profiles-list {
   display: flex;
@@ -20,7 +23,9 @@
   border-radius: var(--radius);
   border: 1px solid transparent;
   gap: 6px;
-  transition: border-color 0.12s, background 0.12s;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
 }
 .profile-item:hover {
   border-color: var(--border);
@@ -42,7 +47,9 @@
   transition: opacity 0.12s;
 }
 .profile-item:hover .profile-item__actions,
-.profile-item:focus-within .profile-item__actions { opacity: 1; }
+.profile-item:focus-within .profile-item__actions {
+  opacity: 1;
+}
 
 .profile-rename-input {
   flex: 1;
@@ -75,7 +82,9 @@
   transition: color 0.1s;
 }
 .btn-link:hover,
-.btn-link:focus-visible { color: var(--primary); }
+.btn-link:focus-visible {
+  color: var(--primary);
+}
 
 /* Info icon + tooltip */
 .info-wrap {
@@ -92,7 +101,10 @@
   cursor: pointer;
   padding: 4px 5px;
   border-radius: 4px;
-  transition: color 0.1s, background 0.1s, border-color 0.1s;
+  transition:
+    color 0.1s,
+    background 0.1s,
+    border-color 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,8 +145,14 @@
 
 /* Panel entrance — plays each time a panel is revealed via tab switch */
 @keyframes panel-in {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .panel:not([hidden]) {
   animation: panel-in 200ms var(--ease-out-quart);
@@ -142,8 +160,14 @@
 
 /* Font preview reveal — slides in from above, fades in */
 @keyframes preview-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .font-preview.visible {
   animation: preview-in 200ms var(--ease-out-quart);
@@ -151,19 +175,34 @@
 
 /* Status badge toggle pop — brief scale pulse on click */
 @keyframes badge-pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 .status-badge.popping {
   animation: badge-pop 260ms var(--ease-out-quart);
 }
 
 /* ---------- Scrollbar ---------- */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
 
 /* ---------- Dark mode ---------- */
 /*
@@ -189,20 +228,24 @@
     --status-on-text: #86efac;
     --status-off-bg: #222120;
     /* --status-off-text inherits var(--text-muted) = #9ca3af — passes 6.3:1 on dark bg */
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.5);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
 
     /* Tab active text — lighter for dark surfaces */
-    --tab-accent-typography: #fcd34d;   /* amber-300  */
-    --tab-accent-spacing:    #6ee7b7;   /* emerald-300 */
-    --tab-accent-color:      #c4b5fd;   /* violet-300 */
-    --tab-accent-profiles:   #93c5fd;   /* blue-300   */
+    --tab-accent-typography: #fcd34d; /* amber-300  */
+    --tab-accent-spacing: #6ee7b7; /* emerald-300 */
+    --tab-accent-color: #c4b5fd; /* violet-300 */
+    --tab-accent-profiles: #93c5fd; /* blue-300   */
   }
 
   :root:not([data-theme="light"]) .tab--active {
     background: var(--bg-hover);
-    box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
   }
-  :root:not([data-theme="light"]) .tab:hover { background: rgba(255,255,255,.05); }
+  :root:not([data-theme="light"]) .tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 /* Forced dark: always dark regardless of system */
@@ -215,16 +258,20 @@ html[data-theme="dark"] {
   --status-on-bg: #14532d;
   --status-on-text: #86efac;
   --status-off-bg: #222120;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
 
   /* Tab active text — lighter for dark surfaces */
   --tab-accent-typography: #fcd34d;
-  --tab-accent-spacing:    #6ee7b7;
-  --tab-accent-color:      #c4b5fd;
-  --tab-accent-profiles:   #93c5fd;
+  --tab-accent-spacing: #6ee7b7;
+  --tab-accent-color: #c4b5fd;
+  --tab-accent-profiles: #93c5fd;
 }
 html[data-theme="dark"] .tab--active {
   background: var(--bg-hover);
-  box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
-html[data-theme="dark"] .tab:hover { background: rgba(255,255,255,.05); }
+html[data-theme="dark"] .tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
