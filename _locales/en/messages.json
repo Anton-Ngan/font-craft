@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "FontCraft",
-    "description": "Extension name"
+    "message": "Typeset: Font, Text Spacing & Colour Control",
+    "description": "Customise fonts, sizes, text spacing, and colours on webpages."
   },
   "extensionDescription": {
-    "message": "Customise fonts, sizes, spacing, and colors on any webpage for improved readability.",
-    "description": "Extension description"
+    "message": "Customise fonts, sizes, text spacing, and colours on webpages.",
+    "description": "Customise fonts, sizes, text spacing, and colours on webpages."
   }
 }
