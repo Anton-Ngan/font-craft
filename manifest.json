@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Typeset: Font, Spacing & Color Control",
   "version": "1.0.0",
-  "description": "Customise fonts, sizes, spacing, and colours on webpages.",
+  "description": "Customise fonts, sizes, spacing, and colors on webpages.",
   "default_locale": "en",
 
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
