@@ -1,10 +1,10 @@
 {
   "extensionName": {
     "message": "Typeset: Font, Text Spacing & Color Control",
-    "description": "Customise fonts, sizes, text spacing, and colors on webpages."
+    "description": "Customise fonts, text spacing, and colors on webpages."
   },
   "extensionDescription": {
-    "message": "Customise fonts, sizes, text spacing, and colors on webpages.",
-    "description": "Customise fonts, sizes, text spacing, and colors on webpages."
+    "message": "Customise fonts, text spacing, and colors on webpages.",
+    "description": "Customise fonts, text spacing, and colors on webpages."
   }
 }
