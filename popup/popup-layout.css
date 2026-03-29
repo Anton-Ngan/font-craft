@@ -187,10 +187,18 @@ body {
     color 0.1s;
 }
 .btn-site-toggle:hover,
-.btn-site-toggle:focus-visible,
+.btn-site-toggle:focus-visible {
+  background: var(--primary);
+  color: var(--text-on-primary);
+}
 .btn-site-toggle.active {
   background: var(--primary);
   color: var(--text-on-primary);
+  animation: site-btn-pulse 2.4s ease-in-out infinite;
+}
+@keyframes site-btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
+  50%       { box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 0%, transparent); }
 }
 
 /* ---------- Tabs — pill-in-tray ---------- */
