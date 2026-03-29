@@ -132,28 +132,15 @@ function bindEvents() {
     pushSettings({ textColor: "" });
   });
 
-  // Highlight color — auto-apply on change, Reset clears both
+  // Highlight color — auto-apply on change, Reset clears
   highlightColorInput.addEventListener("input", () => {
-    fieldHighlightText.hidden = false;
     setColorHex(highlightColorHex, highlightColorInput.value);
     pushSettings({ highlightColor: highlightColorInput.value });
   });
   btnResetHighlight.addEventListener("click", () => {
-    fieldHighlightText.hidden = true;
     setColorHex(highlightColorHex, "");
-    setColorHex(highlightTextColorHex, "");
-    pushSettings({ highlightColor: "", highlightTextColor: "" });
+    pushSettings({ highlightColor: "" });
   });
-  highlightTextColorInput.addEventListener("input", () => {
-    setColorHex(highlightTextColorHex, highlightTextColorInput.value);
-    pushSettings({ highlightTextColor: highlightTextColorInput.value });
-  });
-  if (btnResetHighlightText) {
-    btnResetHighlightText.addEventListener("click", () => {
-      setColorHex(highlightTextColorHex, "");
-      pushSettings({ highlightTextColor: "" });
-    });
-  }
 
   // ---------- Master on/off toggle ----------
   statusBadge.addEventListener("click", async () => {

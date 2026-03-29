@@ -1,4 +1,4 @@
-# Typeset: Font, Spacing & Color Control
+# Typeset: Font, Text Spacing & Color Control
 
 A Chrome extension that lets you override fonts, spacing, and colors on any webpage. It's designed for users with dyslexia, low vision, or other reading difficulties, and for anyone who wants more control over the typeset in their the webpage.
 
@@ -7,7 +7,7 @@ A Chrome extension that lets you override fonts, spacing, and colors on any webp
 - **Font family**: switch to OpenDyslexic, Atkinson Hyperlegible, Lexend, any system font, or upload your own (.woff2, .woff, .ttf, .otf)
 - **Line height, letter spacing, word spacing, paragraph spacing**: fine-grained control over text density
 - **Text color**: override foreground color across the page
-- **Selection highlight color**: set a custom background and foreground for selected text
+- **Selection highlight color**: set a custom background for selected text
 - **Profiles**: save named setting combinations and switch between them instantly
 - **Per-site control**: apply everywhere, only on specific sites, or skip specific sites
 - **Light and dark theme**: the extension UI follows your preference or can be forced

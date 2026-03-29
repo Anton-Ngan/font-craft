@@ -9,6 +9,7 @@
   let currentSettings = null;
   let isActive = false;
   let mutationDebounce = null;
+  let observedHead = null;
 
   // ---------- CSS generation ----------
 
@@ -38,9 +39,6 @@
     if (settings.highlightColor) {
       vars.push(`  --fa-highlight-color: ${settings.highlightColor};`);
     }
-    if (settings.highlightTextColor) {
-      vars.push(`  --fa-highlight-text-color: ${settings.highlightTextColor};`);
-    }
     return vars.join('\n');
   }
 
@@ -61,7 +59,7 @@
     if (rootVars) parts.push(`:root {\n${rootVars}\n}`);
     if (props.length) parts.push(`*, *::before, *::after {\n${props.join('\n')}\n}`);
     if (settings.paragraphSpacing) parts.push(`p, blockquote, li, dd, dt, h1, h2, h3, h4, h5, h6 { margin-bottom: var(--fa-paragraph-spacing) !important; }`);
-    if (settings.highlightColor) parts.push(`::selection { background-color: var(--fa-highlight-color) !important;${settings.highlightTextColor ? ' color: var(--fa-highlight-text-color) !important;' : ''} }`);
+    if (settings.highlightColor) parts.push(`::selection { background-color: var(--fa-highlight-color) !important; }`);
 
     return parts.join('\n\n');
   }
@@ -196,6 +194,11 @@
         if (!document.getElementById(FONT_FACE_ID)) {
           reinjectCustomFonts();
         }
+        // Re-observe head if SPA replaced the <head> element entirely
+        if (document.head && document.head !== observedHead) {
+          observer.observe(document.head, { childList: true });
+          observedHead = document.head;
+        }
       }, 100);
     };
 
@@ -203,7 +206,10 @@
     // Watch documentElement direct children to detect <head> replacement by SPAs
     observer.observe(document.documentElement, { childList: true });
     // Watch <head> direct children to detect style tag removal
-    if (document.head) observer.observe(document.head, { childList: true });
+    if (document.head) {
+      observer.observe(document.head, { childList: true });
+      observedHead = document.head;
+    }
   }
 
   // ---------- message handling ----------

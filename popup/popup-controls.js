@@ -48,15 +48,8 @@ function renderControls() {
   if (settings.textColor) textColorInput.value = settings.textColor;
   setColorHex(textColorHex, settings.textColor);
 
-  if (settings.highlightColor) {
-    highlightColorInput.value = settings.highlightColor;
-    fieldHighlightText.hidden = false;
-  }
+  if (settings.highlightColor) highlightColorInput.value = settings.highlightColor;
   setColorHex(highlightColorHex, settings.highlightColor);
-
-  if (settings.highlightTextColor)
-    highlightTextColorInput.value = settings.highlightTextColor;
-  setColorHex(highlightTextColorHex, settings.highlightTextColor);
 
   if (settings.fontFamily) updateFontPreview();
 }

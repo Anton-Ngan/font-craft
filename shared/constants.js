@@ -31,7 +31,6 @@ const DEFAULT_SETTINGS = {
   lineHeight: '',          // '' = normal
   paragraphSpacing: '',    // '' = normal
   highlightColor: '',      // '' = browser default
-  highlightTextColor: '',  // '' = browser default
   colorScheme: 'light',    // 'light' | 'dark' — extension UI theme
 };
 
