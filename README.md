@@ -1,5 +1,7 @@
 # Typeset: Font, Text Spacing & Color Control
 
+![Typeset icon](assets/icons/icon-48.png)
+
 A Chrome extension that lets you override fonts, spacing, and colors on any webpage. It's designed for users with dyslexia, low vision, or other reading difficulties, and for anyone who wants more control over the typeset in their the webpage.
 
 ## Features
