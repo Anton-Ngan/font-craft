@@ -128,7 +128,11 @@
     isActive = await checkActiveState();
     if (!isActive) return;
 
-    currentSettings = await FontStorage.getSettings();
+    // Skip the storage read if storage.onChanged already set currentSettings with
+    // a newer value from the popup during the checkActiveState() await above.
+    if (!currentSettings) {
+      currentSettings = await FontStorage.getSettings();
+    }
     await applySettings(currentSettings);
 
     // Inject any saved custom font faces
@@ -217,12 +221,12 @@
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     switch (message.type) {
       case MESSAGE_TYPES.APPLY_SETTINGS: {
-        FontStorage.saveSettings(message.settings).then(saved => {
-          currentSettings = saved;
-          applySettings(saved);
-          sendResponse({ ok: true });
-        });
-        return true; // async
+        // Popup already saved to storage before sending this message.
+        // Content script only needs to apply the settings visually.
+        currentSettings = Object.assign({}, DEFAULT_SETTINGS, message.settings);
+        applySettings(currentSettings);
+        sendResponse({ ok: true });
+        break;
       }
 
       case MESSAGE_TYPES.GET_ACTIVE_STATE: {

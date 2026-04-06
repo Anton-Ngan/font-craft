@@ -12,22 +12,26 @@ const FontStorage = (() => {
   // ---------- settings ----------
 
   async function getSettings() {
+    // Local is always written first (reliable, no rate limits) — prefer it.
+    const localResult = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
+    if (localResult[STORAGE_KEYS.SETTINGS] !== undefined) {
+      return mergeWithDefaults(localResult[STORAGE_KEYS.SETTINGS]);
+    }
+    // Local empty: fresh install or different device — fall back to sync.
     try {
-      const result = await chrome.storage.sync.get(STORAGE_KEYS.SETTINGS);
-      return mergeWithDefaults(result[STORAGE_KEYS.SETTINGS]);
+      const syncResult = await chrome.storage.sync.get(STORAGE_KEYS.SETTINGS);
+      return mergeWithDefaults(syncResult[STORAGE_KEYS.SETTINGS]);
     } catch {
-      const result = await chrome.storage.local.get(STORAGE_KEYS.SETTINGS);
-      return mergeWithDefaults(result[STORAGE_KEYS.SETTINGS]);
+      return mergeWithDefaults(undefined);
     }
   }
 
   async function saveSettings(settings) {
     const merged = Object.assign({}, DEFAULT_SETTINGS, settings);
-    try {
-      await chrome.storage.sync.set({ [STORAGE_KEYS.SETTINGS]: merged });
-    } catch {
-      await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: merged });
-    }
+    // Always write to local first: reliable and not rate-limited.
+    await chrome.storage.local.set({ [STORAGE_KEYS.SETTINGS]: merged });
+    // Best-effort sync write for cross-device support (may be rate-limited; ignored on failure).
+    chrome.storage.sync.set({ [STORAGE_KEYS.SETTINGS]: merged }).catch(() => {});
     return merged;
   }
 
