@@ -5,7 +5,7 @@
   "description": "Customise fonts, text spacing, and colors on webpages.",
   "default_locale": "en",
 
-  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "permissions": ["storage", "activeTab", "tabs"],
   "host_permissions": ["<all_urls>"],
 
   "background": {
